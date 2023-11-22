@@ -1,7 +1,8 @@
-﻿using Domain.Models;
+﻿using Domain.CoreServices;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
-
+using Domain.CoreServices;
 namespace WebFater.Installers
 {
     public static class DomainServiceInstaller
@@ -15,6 +16,8 @@ namespace WebFater.Installers
             );
 
             service.AddScoped<DbContext, EcommerceDbContext>();
+            service.AddScoped(typeof(CoreService<>));
+            
         }
     }
 }

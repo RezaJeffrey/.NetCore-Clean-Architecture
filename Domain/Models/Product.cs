@@ -19,6 +19,14 @@ public partial class Product
 
     public long ProductTypeId { get; set; }
 
+    public long? Ddate { get; set; }
+
+    public long? DuserId { get; set; }
+
+    public long? Cdate { get; set; }
+
+    public long? CuserId { get; set; }
+
     public virtual ProductBrand Brand { get; set; } = null!;
 
     public virtual ProductType ProductType { get; set; } = null!;

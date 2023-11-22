@@ -33,12 +33,32 @@ public partial class EcommerceDbContext : DbContext
             entity.HasIndex(e => e.ProductTypeId, "IX_Products_ProductTypeId");
 
             entity.Property(e => e.BrandId).HasDefaultValueSql("(CONVERT([bigint],(0)))");
+            entity.Property(e => e.Cdate).HasColumnName("CDate");
+            entity.Property(e => e.CuserId).HasColumnName("CUserID");
+            entity.Property(e => e.Ddate).HasColumnName("DDate");
+            entity.Property(e => e.DuserId).HasColumnName("DUserID");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ProductTypeId).HasDefaultValueSql("(CONVERT([bigint],(0)))");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Products).HasForeignKey(d => d.BrandId);
 
             entity.HasOne(d => d.ProductType).WithMany(p => p.Products).HasForeignKey(d => d.ProductTypeId);
+        });
+
+        modelBuilder.Entity<ProductBrand>(entity =>
+        {
+            entity.Property(e => e.Cdate).HasColumnName("CDate");
+            entity.Property(e => e.CuserId).HasColumnName("CUserID");
+            entity.Property(e => e.Ddate).HasColumnName("DDate");
+            entity.Property(e => e.DuserId).HasColumnName("DUserID");
+        });
+
+        modelBuilder.Entity<ProductType>(entity =>
+        {
+            entity.Property(e => e.Cdate).HasColumnName("CDate");
+            entity.Property(e => e.CuserId).HasColumnName("CUserID");
+            entity.Property(e => e.Ddate).HasColumnName("DDate");
+            entity.Property(e => e.DuserId).HasColumnName("DUserID");
         });
 
         OnModelCreatingPartial(modelBuilder);
