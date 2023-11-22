@@ -28,5 +28,19 @@ namespace WebFater.Controllers
                 throw;
             }
         }
+
+        [HttpGet("GetProductById")]
+        public async Task<ActionResult<List<Product>>> GetProduct(long Id)
+        {
+            try
+            {
+                var result = await _productService.GetProductTest(Id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -40,6 +40,16 @@ namespace Domain.CoreServices
               Expression.Equal(PI_Ddate, Expression.Constant(null))
             );
         */
+        public async Task<T> FindByIdAsync(long id)
+        {
+            var parameter = Expression.Parameter(typeof(T), "Entity");
+            var PI_ID = Expression.Property(parameter, "Id");
+            var body = Expression.Equal(PI_ID, Expression.Constant(id));
+
+            var lambdaIdExpression = Expression.Lambda<Func<T, bool>>(body, parameter);
+
+            return await Table().FirstOrDefaultAsync(lambdaIdExpression);
+        }
 
     }
 }

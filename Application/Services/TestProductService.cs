@@ -24,5 +24,11 @@ namespace Application.Services
             var products = await CoreService.Table().ToListAsync();
             return products;
         }
+
+        public async Task<Product> GetProductTest(long Id)
+        {
+            var product = await CoreService.FindByIdAsync(Id);
+            return product;
+        }
     }
 }
