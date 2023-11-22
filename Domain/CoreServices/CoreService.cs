@@ -27,13 +27,19 @@ namespace Domain.CoreServices
         public IQueryable<T> Table() 
         {
             var parameter = Expression.Parameter(typeof(T), "Entity");
-            var property = Expression.Property(parameter, "Ddate");
-            var body = Expression.Equal(property, Expression.Constant(null));
+            var PI_Ddate = Expression.Property(parameter, "Ddate");
+            var body = Expression.Equal(PI_Ddate, Expression.Constant(null));
 
             var nullDdateExpression = Expression.Lambda<Func<T, bool>>(body, parameter);
             
             return dbTable.Where(nullDdateExpression).AsNoTracking();
         }
+        /*
+        var body = Expression.Or(
+              Expression.Equal(PI_DuserId, Expression.Constant(null)),
+              Expression.Equal(PI_Ddate, Expression.Constant(null))
+            );
+        */
 
     }
 }
