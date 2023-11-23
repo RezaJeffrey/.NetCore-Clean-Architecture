@@ -42,5 +42,19 @@ namespace WebFater.Controllers
                 throw;
             }
         }
+
+        [HttpGet("GetBrands")]
+        public async Task<ActionResult<List<ProductBrand>>> GetBrands()
+        {
+            try
+            {
+                var result = await _productService.GetProductBrandTest();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

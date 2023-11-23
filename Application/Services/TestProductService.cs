@@ -21,7 +21,7 @@ namespace Application.Services
             
         public async Task<List<Product>> GetProductsTest()
         {
-            var products = await CoreService.Table().ToListAsync();
+            var products = await CoreService.Table().Include(i => i.Brand).ToListAsync();
             return products;
         }
 
@@ -29,6 +29,12 @@ namespace Application.Services
         {
             var product = await CoreService.FindByIdAsync(Id);
             return product;
+        }
+
+        public async Task<List<ProductBrand>> GetProductBrandTest()
+        {
+            var brands = await CoreService.Table<ProductBrand>().Include(b => b.Products).ToListAsync();
+            return brands;
         }
     }
 }
