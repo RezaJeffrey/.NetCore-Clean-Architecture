@@ -1,4 +1,5 @@
 ﻿using Application.Services;
+using Domain.DTOs;
 using Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,20 @@ namespace WebFater.Controllers
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        [HttpPost("AddProduct")]
+        public async Task<ActionResult> AddProduct(ProductDTO product)
+        {
+            try
+            {
+                await _productService.CreateProduct(product);
+                return Ok("successfully created");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException);
             }
         }
     }

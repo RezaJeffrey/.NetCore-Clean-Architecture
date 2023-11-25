@@ -1,4 +1,5 @@
 ﻿using Domain.CoreServices;
+using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -21,7 +22,7 @@ namespace Application.Services
             
         public async Task<List<Product>> GetProductsTest()
         {
-            var products = await CoreService.Table().Include(i => i.Brand).ToListAsync();
+            var products = await CoreService.Table().ToListAsync();
             return products;
         }
 
@@ -33,8 +34,23 @@ namespace Application.Services
 
         public async Task<List<ProductBrand>> GetProductBrandTest()
         {
-            var brands = await CoreService.Table<ProductBrand>().Include(b => b.Products).ToListAsync();
+            var brands = await CoreService.Table<ProductBrand>().ToListAsync();
             return brands;
+        }
+
+        public async Task CreateProduct(ProductDTO input)
+        {
+            var product = new Product();
+            product.Name = input.Name;
+            product.Description = input.Description;    
+            product.Price = input.Price;
+            product.ImageUrl = input.ImageUrl;
+            product.BrandId = null;
+            product.ProductTypeId = 3;
+
+
+            await CoreService.Add(product, false);
+            await CoreService.CommitAsync();
         }
     }
 }
