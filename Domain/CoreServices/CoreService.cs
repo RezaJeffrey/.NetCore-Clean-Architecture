@@ -107,6 +107,7 @@ namespace Domain.CoreServices
             }
 
         }
+
         public async Task Delete(T InputEntity, bool save = true)  // delete by item object
         {
             try
@@ -143,7 +144,48 @@ namespace Domain.CoreServices
             }
 
         }
-        public async Task CommitAsync()  // TODO Test Transactions
+
+        public async Task Update(T InputEntity, bool save = true)
+        // TODO Update Not Tested, Test after implementation of Mdate and MuserID in 
+        // TODO feature: add UpdateByDTO
+        {
+            try
+            {
+                T? Entity = await FindByIdAsync(InputEntity.Id);
+                if (Entity == null) throw new Exception("No such Item in DataBase");
+
+                /* TODO After implementation of AuthService, Set Current UserName and UserID */
+                PropertyInfo? PI_Mdate = InputEntity.GetType().GetProperty("Mdate");
+                PropertyInfo? PI_MuserId = InputEntity.GetType().GetProperty("MuserId");
+
+                #region PropertyNullCheck
+                if (PI_Mdate == null || PI_MuserId == null)
+                {
+                    var properties = "";
+                    if (PI_Mdate == null) properties += "Mdate, ";
+                    if (PI_MuserId == null) properties += "MuserId, ";
+                    if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
+
+                    throw new Exception($"Entity doesn't contain properties: {properties}");
+                }
+                #endregion
+
+                PI_Mdate.SetValue(InputEntity, DateTime.Now.Ticks, null);
+                PI_MuserId.SetValue(InputEntity, (long?)1, null);
+
+
+                dbTable.Update(InputEntity);
+                if (save) await CommitAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+
+        public async Task CommitAsync()  
         {
             await db.SaveChangesAsync();
         }
@@ -151,7 +193,7 @@ namespace Domain.CoreServices
         public async Task BeginTransaction()
         {
             await db.Database.BeginTransactionAsync();
-        }
+        } // TODO Test Transactions
 
         public async Task CommitTransaction()
         {
