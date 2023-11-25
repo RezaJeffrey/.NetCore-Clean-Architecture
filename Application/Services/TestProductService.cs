@@ -4,6 +4,7 @@ using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,12 +46,36 @@ namespace Application.Services
             product.Description = input.Description;    
             product.Price = input.Price;
             product.ImageUrl = input.ImageUrl;
-            product.BrandId = null;
+            product.BrandId = 3;
             product.ProductTypeId = 3;
 
 
-            await CoreService.Add(product, false);
+            await CoreService.Create(product, false);
             await CoreService.CommitAsync();
+        }
+
+        public async Task DeleteProductByName(ProductDTO input)
+        {
+            try
+            {
+                var deleted = await CoreService.Table()
+                    .Where(i => i.Name == input.Name)
+                    .FirstOrDefaultAsync();
+
+                if (deleted == null)
+                {
+                    throw new Exception("Couldn't retreive item from database");
+                }
+
+                await CoreService.Delete(deleted.Id, false);
+                await CoreService.CommitAsync();
+            }
+            catch
+            (Exception ex)
+            {
+                throw;
+            }
+
         }
     }
 }

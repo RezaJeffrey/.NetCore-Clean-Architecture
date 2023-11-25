@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.ModelMetadata;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Domain.CoreServices
 {
-    public class CoreService<T> where T : class
+    public class CoreService<T> where T : BaseModel
     {
         public DbContext db { get;}
         public DbSet<T> dbTable { get;}
@@ -25,72 +26,123 @@ namespace Domain.CoreServices
         }
 
 
-
-        /*
-        var body = Expression.Or(
-              Expression.Equal(PI_DuserId, Expression.Constant(null)),
-              Expression.Equal(PI_Ddate, Expression.Constant(null))
-            );
-        */
         public IQueryable<T> Table()
         {
-            var parameter = Expression.Parameter(typeof(T), "Entity");
-            var PI_Ddate = Expression.Property(parameter, "Ddate");
-
-            var DdateNullBody = Expression.Equal(PI_Ddate, Expression.Constant(null, typeof(long?)));
-            var DdateZeroBody = Expression.Equal(PI_Ddate, Expression.Constant( (long?)0, typeof(long?) ));
-            var OrBody = Expression.Or(DdateZeroBody, DdateNullBody);
-
-            var nullDdateExpression = Expression.Lambda<Func<T, bool>>(OrBody, parameter);
-
-            return dbTable.Where(nullDdateExpression).AsNoTracking();
+            return dbTable.Where(Entity => Entity.Ddate == null || Entity.Ddate == 0);
         }
 
-        public IQueryable<TEntity> Table<TEntity>() where TEntity : class
+        public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel
         {
-            var parameter = Expression.Parameter(typeof(TEntity), "Entity");
-            var PI_Ddate = Expression.Property(parameter, "Ddate");
-
-            var DdateNullBody = Expression.Equal(PI_Ddate, Expression.Constant(null, typeof(long?)));
-            var DdateZeroBody = Expression.Equal(PI_Ddate, Expression.Constant((long?)0, typeof(long?)));
-            var OrBody = Expression.Or(DdateZeroBody, DdateNullBody);
-
-            var nullDdateExpression = Expression.Lambda<Func<TEntity, bool>>(OrBody, parameter);
-
-            return db.Set<TEntity>().Where(nullDdateExpression).AsQueryable().AsNoTracking();
+            return db.Set<TEntity>().Where(Entity => Entity.Ddate == null || Entity.Ddate == 0);
         }
+
         public async Task<T?> FindByIdAsync(long id)
         {
-            var parameter = Expression.Parameter(typeof(T), "Entity");
-            var PI_ID = Expression.Property(parameter, "Id");
-            var body = Expression.Equal(PI_ID, Expression.Constant(id));
-
-            var lambdaIdExpression = Expression.Lambda<Func<T, bool>>(body, parameter);
-
-            return await Table().FirstOrDefaultAsync(lambdaIdExpression);
+            return await Table().FirstOrDefaultAsync(Entity => Entity.Id == id);
         }
 
-        public async Task Add(T T, bool save = true)
+        public async Task Create(T T, bool save = true)
         {
-            var PI_Cdate = T.GetType().GetProperty("Cdate");
-            var PI_CuserId = T.GetType().GetProperty("CuserId");
-            //var PI_CuserName = T.GetType().GetProperty("CuserName");
+            try
+            {
+                // TODO After implementation of AuthService, Set Current UserName and UserID   
+                PropertyInfo? PI_Cdate = T.GetType().GetProperty("Cdate");
+                PropertyInfo? PI_CuserId = T.GetType().GetProperty("CuserId");
 
-            var Now = DateTime.Now.Ticks;
-            var UserId = (long?)1;  // test user id
-            var UserName = "TestUserName";  // test user name
+                if (PI_Cdate == null || PI_CuserId == null)
+                {
+                    var properties = "";
+                    if (PI_CuserId == null) properties += "Cdate, ";
+                    if (PI_CuserId == null) properties += "CUserId, ";
+                    if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
 
-            PI_Cdate.SetValue(T, Now, null);
-            PI_CuserId.SetValue(T, UserId, null);
-            //PI_CuserName.SetValue(T, UserName, null);
-            // TODO [AuthService] After Implementing AuthService Set UserName
+                    throw new Exception($"Entity doesn't contain properties: {properties}");
+                }
+
+                PI_Cdate.SetValue(T, DateTime.Now.Ticks, null);
+                PI_CuserId.SetValue(T, (long?)1, null);
 
 
-            await db.AddAsync(T);
-            if (save) await CommitAsync();
+                await db.AddAsync(T);
+                if (save) await CommitAsync();
+            }
+            catch (Exception) 
+            {
+                throw;
+            }
+
         }
 
+        public async Task Delete(long id, bool save = true)
+        {
+            try
+            {
+                T? Entity = await FindByIdAsync(id);
+                if (Entity == null) throw new Exception("No such Item in DataBase");
 
+                // TODO After implementation of AuthService, Set Current UserName and UserID   
+                PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("Ddate");
+                PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DuserId");
+
+                if (PI_Ddate == null || PI_DuserId == null)
+                {
+                    var properties = "";
+                    if (PI_Ddate == null) properties += "Ddate, ";
+                    if (PI_DuserId == null) properties += "DuserId, ";
+                    if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
+
+                    throw new Exception($"Entity doesn't contain properties: {properties}");
+                }
+
+                PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
+                PI_DuserId.SetValue(Entity, (long?)1, null);
+
+
+                dbTable.Update(Entity);
+                if (save) await CommitAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+        public async Task Delete(T InputEntity, bool save = true)  // delete by item object
+        {
+            try
+            {
+                T? Entity = await FindByIdAsync(InputEntity.Id);
+                if (Entity == null) throw new Exception("No such Item in DataBase");
+
+                /* TODO After implementation of AuthService, Set Current UserName and UserID */  
+                PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("Ddate");
+                PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DuserId");
+
+                #region PropertyNullCheck
+                if (PI_Ddate == null || PI_DuserId == null)
+                {
+                    var properties = "";
+                    if (PI_Ddate == null) properties += "Ddate, ";
+                    if (PI_DuserId == null) properties += "DuserId, ";
+                    if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
+
+                    throw new Exception($"Entity doesn't contain properties: {properties}");
+                }
+                #endregion
+
+                PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
+                PI_DuserId.SetValue(Entity, (long?)1, null);
+
+
+                dbTable.Update(Entity);
+                if (save) await CommitAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
         public async Task CommitAsync()  // TODO Test Transactions
         {
             await db.SaveChangesAsync();
@@ -113,12 +165,12 @@ namespace Domain.CoreServices
 
         /*
          TODO
+
          Table All
          Update
-         Add 
          Add DTO convert mapping
          ToPaging
-         Delete
+
         */
     }
 }
