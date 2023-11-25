@@ -1,4 +1,6 @@
-﻿using Domain.ModelMetadata;
+﻿using CoreLayer.Interfaces;
+using CoreLayer.Utils;
+using Domain.ModelMetadata;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -11,9 +13,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.CoreServices
+namespace CoreLayer.CoreServices
 {
-    public class CoreService<T> where T : BaseModel
+    public class CoreService<T> : ICoreService<T> where T : BaseModel
     {
         public DbContext db { get;}
         public DbSet<T> dbTable { get;}
@@ -194,6 +196,18 @@ namespace Domain.CoreServices
 
         }
 
+        public async Task<GridData<T>> ToPaging(int pageNumber, int pageSize, string? orderType)  // TODO test ToPagin + implement ToPaging by orderfield
+        {
+            var gridData = new GridData<T>();
+            var data = await Table().Skip(pageNumber - 1).Take(pageSize).ToListAsync();
+
+            gridData.Data = (orderType?.ToLower() == "desc") 
+                ? data.OrderByDescending(Entity => Entity.Id).ToList() 
+                : data.OrderBy(Entity => Entity.Id).ToList();
+
+
+            return gridData;
+        }
 
         public async Task CommitAsync()  
         {
@@ -218,9 +232,8 @@ namespace Domain.CoreServices
         /*
          TODO
 
-         Change Arch, Add CoreLayer/Utils: add CoreService/AuthService/Enums/Interfaces/classes(GridDate<T>)
          Add DTO convert mapping
-         ToPaging
+         
 
         */
     }
