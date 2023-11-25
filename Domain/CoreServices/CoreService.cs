@@ -36,6 +36,16 @@ namespace Domain.CoreServices
             return db.Set<TEntity>().Where(Entity => Entity.Ddate == null || Entity.Ddate == 0);
         }
 
+        public IQueryable<T> TableAll()
+        {
+            return dbTable;
+        }
+
+        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : BaseModel
+        {
+            return db.Set<TEntity>();
+        }
+
         public async Task<T?> FindByIdAsync(long id)
         {
             return await Table().FirstOrDefaultAsync(Entity => Entity.Id == id);
@@ -208,8 +218,7 @@ namespace Domain.CoreServices
         /*
          TODO
 
-         Table All
-         Update
+         Change Arch, Add CoreLayer/Utils: add CoreService/AuthService/Enums/Interfaces/classes
          Add DTO convert mapping
          ToPaging
 
