@@ -71,5 +71,19 @@ namespace WebFater.Controllers
                 return BadRequest(ex.InnerException);
             }
         }
+
+        [HttpDelete("DeleteProduct")]
+        public async Task<ActionResult> DeleteProduct(ProductDTO product)
+        {
+            try
+            {
+                await _productService.DeleteProductByName(product);
+                return Ok("successfully deleted");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
