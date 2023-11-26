@@ -1,19 +1,10 @@
 ﻿using CoreLayer.Interfaces;
-using CoreLayer.Utils;
 using Domain.ModelMetadata;
-using Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Utils.Models;
 
-namespace CoreLayer.CoreServices
+namespace CoreLayer.Services
 {
     public class CoreService<T> : ICoreService<T> where T : BaseModel
     {

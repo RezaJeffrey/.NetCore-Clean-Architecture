@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoreLayer.Utils
+namespace Utils.Models
 {
     public class GridData<T> where T : class
     {

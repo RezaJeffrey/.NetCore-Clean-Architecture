@@ -1,7 +1,7 @@
-﻿using Domain.CoreServices;
-using Domain.DTOs;
+﻿using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using CoreLayer.Services;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Application.Services
 {

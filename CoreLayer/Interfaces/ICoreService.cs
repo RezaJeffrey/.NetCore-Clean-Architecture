@@ -1,12 +1,5 @@
-﻿using CoreLayer.Utils;
-using Domain.ModelMetadata;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.ModelMetadata;
+using Utils.Models;
 
 namespace CoreLayer.Interfaces
 {

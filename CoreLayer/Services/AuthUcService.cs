@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CoreLayer.Interfaces;
 
-namespace CoreLayer.Utils
+namespace CoreLayer.Services
 {
-    public class Filter
+    public class AuthUCservice : IAuthUCservice
     {
-        public string? Key { get; set; }
-        public string? Value { get; set; }
-
     }
 }
