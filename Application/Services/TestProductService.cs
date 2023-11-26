@@ -42,14 +42,7 @@ namespace Application.Services
 
         public async Task CreateProduct(ProductDTO input)
         {
-            var product = new Product();
-            //product.Name = input.Name;
-            //product.Description = input.Description;    
-            //product.Price = input.Price;
-            //product.ImageUrl = input.ImageUrl;
-            //product.BrandId = 3;
-            //product.ProductTypeId = 3;
-            product = ObjectMapper.ConvertObject<ProductDTO, Product>(input);
+            var product = ObjectMapper.ConvertObject<ProductDTO, Product>(input);
             product.BrandId = 3;
             product.ProductTypeId = 3;
 
