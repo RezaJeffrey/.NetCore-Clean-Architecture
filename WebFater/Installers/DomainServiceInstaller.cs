@@ -1,8 +1,7 @@
-﻿using Domain.CoreServices;
+﻿using CoreLayer.Services;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
-using Domain.CoreServices;
 namespace WebFater.Installers
 {
     public static class DomainServiceInstaller
