@@ -14,6 +14,7 @@ builder.Services
     .UseDbContext(builder.Configuration);
 
 builder.Services.AddApplicationLayerServices();
+builder.Services.AddUtilityServices();
 
 
 var app = builder.Build();

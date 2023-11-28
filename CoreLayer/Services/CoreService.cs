@@ -6,7 +6,7 @@ using Utils.Models;
 
 namespace CoreLayer.Services
 {
-    public class CoreService<T> : ICoreService<T> where T : BaseModel
+    public class CoreService<T> : ICoreService<T> where T : BaseModel  // TODO: CoreService<TEntity, TDTO> convert from TEntity to TDTO of the service
     {
         public DbContext db { get;}
         public DbSet<T> dbTable { get;}

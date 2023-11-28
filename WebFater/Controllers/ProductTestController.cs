@@ -24,7 +24,7 @@ namespace WebFater.Controllers
                 var result = await _productService.GetProductsTest();
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -38,7 +38,7 @@ namespace WebFater.Controllers
                 var result = await _productService.GetProductTest(Id);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -52,7 +52,7 @@ namespace WebFater.Controllers
                 var result = await _productService.GetProductBrandTest();
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
