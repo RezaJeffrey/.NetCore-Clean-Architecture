@@ -1,12 +1,14 @@
-﻿using CoreLayer.Interfaces;
+﻿using AutoMapper.Execution;
+using CoreLayer.Interfaces;
 using Domain.ModelMetadata;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Reflection;
 using Utils.Models;
 
 namespace CoreLayer.Services
 {
-    public class CoreService<T> : ICoreService<T> where T : BaseModel  // TODO: CoreService<TEntity, TDTO> convert from TEntity to TDTO of the service
+    public class CoreService<T, TDTO> : ICoreService<T, TDTO> where T : BaseModel where TDTO : class 
     {
         public DbContext db { get;}
         public DbSet<T> dbTable { get;}
@@ -150,7 +152,6 @@ namespace CoreLayer.Services
 
         public async Task Update(T InputEntity, bool save = true)
         // TODO Update Not Tested, Test after implementation of Mdate and MuserID in 
-        // TODO feature: add UpdateByDTO
         {
             try
             {

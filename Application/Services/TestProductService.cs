@@ -16,8 +16,8 @@ namespace Application.Services
 {
     public class TestProductService 
     {
-        public CoreService<Product> CoreService { get; set; }
-        public TestProductService(CoreService<Product> coreService)
+        public CoreService<Product, ProductDTO> CoreService { get; set; }
+        public TestProductService(CoreService<Product, ProductDTO> coreService)
         {
             CoreService = coreService;
         } 
