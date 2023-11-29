@@ -25,9 +25,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseMiddleware<GlobalDevExceptionMiddleware>();
 }
-app.UseMiddleware<GlobalExceptionMiddleware>(); // TODO Implement MiddlWare for developement and production
-
+else
+{
+    app.UseMiddleware<GlobalExceptionMiddleware>(); 
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

@@ -15,7 +15,7 @@ namespace WebFater.Installers
             );
 
             service.AddScoped<DbContext, EcommerceDbContext>();
-            service.AddScoped(typeof(CoreService<>));
+            service.AddScoped(typeof(CoreService<,>));
             
         }
     }

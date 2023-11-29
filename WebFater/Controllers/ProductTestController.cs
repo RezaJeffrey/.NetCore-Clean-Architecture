@@ -19,71 +19,44 @@ namespace WebFater.Controllers
         [HttpGet("getProducts")]
         public async Task<ActionResult<List<Product>>> GetProducts()
         {
-            try
-            {
-                var result = await _productService.GetProductsTest();
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            var result = await _productService.GetProductsTest();
+            return Ok(result);
+
         }
 
         [HttpGet("GetProductById")]
         public async Task<ActionResult<List<Product>>> GetProduct(long Id)
         {
-            try
-            {
-                var result = await _productService.GetProductTest(Id);
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            var result = await _productService.GetProductTest(Id);
+            return Ok(result);
+
         }
 
         [HttpGet("GetBrands")]
         public async Task<ActionResult<List<ProductBrand>>> GetBrands()
         {
-            try
-            {
-                var result = await _productService.GetProductBrandTest();
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            var result = await _productService.GetProductBrandTest();
+            return Ok(result);
+
         }
 
         [HttpPost("AddProduct")]
         public async Task<ActionResult> AddProduct(ProductDTO product)
         {
-            try
-            {
-                await _productService.CreateProduct(product);
-                return Ok("successfully created");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.InnerException);
-            }
+
+            await _productService.CreateProduct(product);
+            return Ok("successfully created");
+
         }
 
         [HttpDelete("DeleteProduct")]
         public async Task<ActionResult> DeleteProduct(ProductDTO product)
         {
-            try
-            {
-                await _productService.DeleteProductByName(product);
-                return Ok("successfully deleted");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _productService.DeleteProductByName(product);
+            return Ok("successfully deleted");
         }
     }
 }

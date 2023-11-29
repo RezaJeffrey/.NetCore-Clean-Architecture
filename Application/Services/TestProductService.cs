@@ -2,15 +2,8 @@
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using CoreLayer.Services;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils.Mappings;
+using Utils.Exceptions;
 
 namespace Application.Services
 {
@@ -31,6 +24,7 @@ namespace Application.Services
         public async Task<Product> GetProductTest(long Id)
         {
             var product = await CoreService.FindByIdAsync(Id);
+            if (product == null) throw new AppRuleException("no such Item in database or you don't have sufficient permissions"); 
             return product;
         }
 
@@ -53,25 +47,15 @@ namespace Application.Services
 
         public async Task DeleteProductByName(ProductDTO input)
         {
-            try
-            {
-                var deleted = await CoreService.Table()
-                    .Where(i => i.Name == input.Name)
-                    .FirstOrDefaultAsync();
 
-                if (deleted == null)
-                {
-                    throw new Exception("Couldn't retreive item from database");
-                }
+            var deleted = await CoreService.Table()
+                .Where(i => i.Name == input.Name)
+                .FirstOrDefaultAsync();
 
-                await CoreService.Delete(deleted.Id, false);
-                await CoreService.CommitAsync();
-            }
-            catch
-            (Exception ex)
-            {
-                throw;
-            }
+            if (deleted == null) throw new AppRuleException("Item does not exist in DataBase or you don't have sufficient permissions");
+
+            await CoreService.Delete(deleted.Id, false);
+            await CoreService.CommitAsync();
 
         }
     }
