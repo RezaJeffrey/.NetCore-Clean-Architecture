@@ -5,7 +5,7 @@ namespace Utils.Mappings
     public class ObjectMapper
     {
 
-        public static modelTo ConvertObject<modelFrom,  modelTo>(modelFrom model)
+        public static modelTo MapObject<modelFrom,  modelTo>(modelFrom model)
         { 
             var mapperConfig = new MapperConfiguration(cfg =>
             {
@@ -18,13 +18,13 @@ namespace Utils.Mappings
             return mapped;
         }
 
-        public static List<modelTo> ConvertList<modelFrom, modelTo>(List<modelFrom> modelList)
+        public static List<modelTo> MapList<modelFrom, modelTo>(List<modelFrom> modelList)
         {
             var mappedList = new List<modelTo>();
 
             foreach ( var model in modelList) 
             {
-                mappedList.Add( ConvertObject<modelFrom, modelTo>(model) );
+                mappedList.Add(MapObject<modelFrom, modelTo>(model) );
             }
 
             return mappedList;

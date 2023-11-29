@@ -24,7 +24,7 @@ namespace Application.Services
         public async Task<List<RoleDTO>> GetRolesTest()
         {
             var role = await CoreService.Table().ToListAsync();
-            return ObjectMapper.ConvertList<Role, RoleDTO>(role);
+            return ObjectMapper.MapList<Role, RoleDTO>(role);
         }
 
         public async Task<RoleDTO> GetRoleTest(long Id)
@@ -32,7 +32,7 @@ namespace Application.Services
             var role = await CoreService.FindByIdAsync(Id);
             if (role == null) throw new AppRuleException("no such Item in database or you don't have sufficient permissions");
 
-            return ObjectMapper.ConvertObject<Role, RoleDTO>(role);
+            return ObjectMapper.MapObject<Role, RoleDTO>(role);
         }
 
         public async Task<List<UserRole>> GetUserRolesTest()
@@ -43,7 +43,7 @@ namespace Application.Services
 
         public async Task CreateRole(RoleDTO input)
         {
-            var role = ObjectMapper.ConvertObject<RoleDTO, Role>(input);
+            var role = ObjectMapper.MapObject<RoleDTO, Role>(input);
 
 
             await CoreService.Create(role, false);
