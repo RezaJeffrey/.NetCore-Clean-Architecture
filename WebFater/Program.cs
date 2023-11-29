@@ -1,4 +1,5 @@
 using WebFater.Installers;
+using WebFater.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware<GlobalExceptionMiddleware>(); // TODO Implement MiddlWare for developement and production
 
 app.UseHttpsRedirection();
 
