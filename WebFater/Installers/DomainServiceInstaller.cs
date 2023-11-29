@@ -8,13 +8,13 @@ namespace WebFater.Installers
     {
         public static void UseDbContext(this IServiceCollection service, IConfiguration configuration)
         {
-            service.AddDbContext<EcommerceDbContext>(options =>
+            service.AddDbContext<FaterTestContext>(options =>
                 {
                     options.UseSqlServer(configuration.GetConnectionString("DevConnection"));
                 }
             );
 
-            service.AddScoped<DbContext, EcommerceDbContext>();
+            service.AddScoped<DbContext, FaterTestContext>();
             service.AddScoped(typeof(CoreService<,>));
             
         }

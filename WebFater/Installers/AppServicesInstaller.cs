@@ -9,7 +9,7 @@ namespace WebFater.Installers
         public static void AddApplicationLayerServices(this IServiceCollection service)
         {
         
-            service.AddTransient<TestProductService, TestProductService>();
+            service.AddTransient<TestRoleService, TestRoleService>();
         }
     }
 }

@@ -12,12 +12,12 @@ namespace Domain.ModelMetadata
         [ForeignKey("ID")]
         public long Id { get; set; }
 
-        public long? Ddate { get; set; }
+        public long? CreateDate { get; set; }
+        public long? CreateUserId { get; set; }
+        public long? ModifyDate { get; set; }
+        public long? ModifyUserId { get; set; } 
+        public long? DeleteDate { get; set; }
+        public long? DeleteUserId { get; set; }
 
-        public long? DuserId { get; set; }
-
-        public long? Cdate { get; set; }
-
-        public long? CuserId { get; set; }
     }
 }

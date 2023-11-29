@@ -10,8 +10,8 @@ namespace CoreLayer.Services
 {
     public class CoreService<T, TDTO> : ICoreService<T, TDTO> where T : BaseModel where TDTO : class 
     {
-        public DbContext db { get;}
-        public DbSet<T> dbTable { get;}
+        private DbContext db { get;}
+        private DbSet<T> dbTable { get;}
 
         public CoreService(DbContext dbContext)
         {
@@ -23,12 +23,12 @@ namespace CoreLayer.Services
 
         public IQueryable<T> Table()
         {
-            return dbTable.Where(Entity => Entity.Ddate == null || Entity.Ddate == 0);
+            return dbTable.Where(Entity => Entity.DeleteDate == null || Entity.DeleteDate == 0);
         }
 
         public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel
         {
-            return db.Set<TEntity>().Where(Entity => Entity.Ddate == null || Entity.Ddate == 0);
+            return db.Set<TEntity>().Where(Entity => Entity.DeleteDate == null || Entity.DeleteDate == 0);
         }
 
         public IQueryable<T> TableAll()
@@ -51,21 +51,21 @@ namespace CoreLayer.Services
             try
             {
                 // TODO After implementation of AuthService, Set Current UserName and UserID   
-                PropertyInfo? PI_Cdate = T.GetType().GetProperty("Cdate");
-                PropertyInfo? PI_CuserId = T.GetType().GetProperty("CuserId");
+                PropertyInfo? PI_Cdate = T.GetType().GetProperty("CreateDate");
+                PropertyInfo? PI_CuserId = T.GetType().GetProperty("CreateUserId");
 
                 if (PI_Cdate == null || PI_CuserId == null)
                 {
                     var properties = "";
-                    if (PI_CuserId == null) properties += "Cdate, ";
-                    if (PI_CuserId == null) properties += "CUserId, ";
+                    if (PI_Cdate == null) properties += "CreateDate, ";
+                    if (PI_CuserId == null) properties += "CreateUserId, ";
                     if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
 
                     throw new Exception($"Entity doesn't contain properties: {properties}");
                 }
 
                 PI_Cdate.SetValue(T, DateTime.Now.Ticks, null);
-                PI_CuserId.SetValue(T, (long?)1, null);
+                PI_CuserId.SetValue(T, (long?)1, null); // TODO get user ID
 
 
                 await db.AddAsync(T);
@@ -86,21 +86,21 @@ namespace CoreLayer.Services
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
                 // TODO After implementation of AuthService, Set Current UserName and UserID   
-                PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("Ddate");
-                PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DuserId");
+                PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("DeleteDate");
+                PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DeleteUserId");
 
                 if (PI_Ddate == null || PI_DuserId == null)
                 {
                     var properties = "";
-                    if (PI_Ddate == null) properties += "Ddate, ";
-                    if (PI_DuserId == null) properties += "DuserId, ";
+                    if (PI_Ddate == null) properties += "DeleteDate, ";
+                    if (PI_DuserId == null) properties += "DeleteUserId, ";
                     if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
 
                     throw new Exception($"Entity doesn't contain properties: {properties}");
                 }
 
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
-                PI_DuserId.SetValue(Entity, (long?)1, null);
+                PI_DuserId.SetValue(Entity, (long?)1, null); // TODO Get User Id
 
 
                 dbTable.Update(Entity);
@@ -121,15 +121,15 @@ namespace CoreLayer.Services
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
                 /* TODO After implementation of AuthService, Set Current UserName and UserID */  
-                PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("Ddate");
-                PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DuserId");
+                PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("DeleteDate");
+                PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DeleteUserId");
 
                 #region PropertyNullCheck
                 if (PI_Ddate == null || PI_DuserId == null)
                 {
                     var properties = "";
-                    if (PI_Ddate == null) properties += "Ddate, ";
-                    if (PI_DuserId == null) properties += "DuserId, ";
+                    if (PI_Ddate == null) properties += "DeleteDate, ";
+                    if (PI_DuserId == null) properties += "DeleteUserId, ";
                     if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
 
                     throw new Exception($"Entity doesn't contain properties: {properties}");
@@ -137,7 +137,7 @@ namespace CoreLayer.Services
                 #endregion
 
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
-                PI_DuserId.SetValue(Entity, (long?)1, null);
+                PI_DuserId.SetValue(Entity, (long?)1, null); // TODO get User Id
 
 
                 dbTable.Update(Entity);
@@ -159,15 +159,15 @@ namespace CoreLayer.Services
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
                 /* TODO After implementation of AuthService, Set Current UserName and UserID */
-                PropertyInfo? PI_Mdate = InputEntity.GetType().GetProperty("Mdate");
-                PropertyInfo? PI_MuserId = InputEntity.GetType().GetProperty("MuserId");
+                PropertyInfo? PI_Mdate = InputEntity.GetType().GetProperty("ModifyDate");
+                PropertyInfo? PI_MuserId = InputEntity.GetType().GetProperty("ModifyUserId");
 
                 #region PropertyNullCheck
                 if (PI_Mdate == null || PI_MuserId == null)
                 {
                     var properties = "";
-                    if (PI_Mdate == null) properties += "Mdate, ";
-                    if (PI_MuserId == null) properties += "MuserId, ";
+                    if (PI_Mdate == null) properties += "ModifyDate, ";
+                    if (PI_MuserId == null) properties += "ModifyUserId, ";
                     if (properties.Length > 0) properties = properties.Substring(0, properties.Length - 2);
 
                     throw new Exception($"Entity doesn't contain properties: {properties}");
@@ -175,7 +175,7 @@ namespace CoreLayer.Services
                 #endregion
 
                 PI_Mdate.SetValue(InputEntity, DateTime.Now.Ticks, null);
-                PI_MuserId.SetValue(InputEntity, (long?)1, null);
+                PI_MuserId.SetValue(InputEntity, (long?)1, null); // TODO get User Id
 
 
                 dbTable.Update(InputEntity);
