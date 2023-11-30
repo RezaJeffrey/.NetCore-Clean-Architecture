@@ -8,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Utils.Exceptions;
@@ -33,14 +35,12 @@ namespace Application.Services
         {
             throw new NotImplementedException();
         }
-        public async Task<string> HashPassword(string password, string salt = "")
+        public async Task<(string hash, byte[] salt)> HashPassword(string password, byte[]? salt = null)
         {
             var passKey = _configuration.GetSection("AppSettings:PasswordHashKey");
-            var saltAndKey = string.Empty;
+            var generatedSalt = (salt == null) ? GenerateSalt() : salt;
+            var saltAndKey = Convert.ToBase64String(generatedSalt) + passKey;
 
-            saltAndKey = (salt == string.Empty)
-                ? saltAndKey = Convert.ToBase64String(GenerateSalt()) + passKey
-                : salt + passKey;
 
             var hash = await Task.Run(() =>
             {
@@ -53,7 +53,7 @@ namespace Application.Services
                 );
             });
 
-            return Convert.ToBase64String(hash);
+            return (Convert.ToBase64String(hash), generatedSalt);
 
         }
         public byte[] GenerateSalt()
@@ -63,6 +63,12 @@ namespace Application.Services
             rng.GetBytes(salt);
 
             return salt;
+        }
+
+        public async Task<bool> ValidatePassword(string password, byte[] salt, string hash)
+        {
+            var passwordHash = await HashPassword(password, salt);
+            return hash == passwordHash.hash;
         }
         public Task<bool> ValidateUserToken(User user, string token)
         {
