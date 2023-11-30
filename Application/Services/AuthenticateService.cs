@@ -35,7 +35,7 @@ namespace Application.Services
         #endregion
 
         public string CreateToken(User user, List<Role> roles)
-        {
+        { // TODO add user main role in DB and set it as a claim
             List<Claim> claims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString(), "Identity"),

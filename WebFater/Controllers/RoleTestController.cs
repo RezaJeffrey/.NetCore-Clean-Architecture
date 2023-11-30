@@ -2,14 +2,17 @@
 using CoreLayer.Interfaces;
 using Domain.DTOs;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Utils.Exceptions;
 using Utils.Mappings;
 
 namespace WebFater.Controllers
 {
     [ApiController]
     [Route("Role")]
+    [Authorize]
     public class RoleTestController : ControllerBase
     {
         private TestRoleService _roleService;
@@ -64,9 +67,19 @@ namespace WebFater.Controllers
         }
 
         [HttpGet("GetUserRolesById")]
+        [Authorize]
         public async Task<List<RoleDTO>> GetUserRoles(long Id)
         {
             var userRoles = await _authenticateService.FetchUserRoles(Id);
+            // Test Authentication
+            User? user = await _authenticateService.GetUserById(1);
+            if (user == null) throw new AppRuleException("user not found");
+
+            var token = _authenticateService.CreateToken(user, userRoles);
+            var roles = User.FindAll(a => a.Type == "Role");
+            var role = roles.FirstOrDefault()?.Value;
+            
+            //
             
             return ObjectMapper.MapList<Role, RoleDTO>(userRoles);
         }
