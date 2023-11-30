@@ -38,14 +38,14 @@ namespace Application.Services
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim("UserId", user.Id.ToString()),
-                new Claim("UserName", user.UserName),
+                new Claim("UserId", user.Id.ToString(), "Identity"),
+                new Claim("UserName", user.UserName, "Identity"),
             };
 
             foreach (var role in roles)
             {
                 claims.Add(
-                        new Claim("Role", role.Gcode.ToString())
+                        new Claim("Role", role.Gcode.ToString(), "Role")
                     );
             }
 
