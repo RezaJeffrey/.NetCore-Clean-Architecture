@@ -1,4 +1,5 @@
-﻿using CoreLayer.Services;
+﻿using CoreLayer.Interfaces;
+using CoreLayer.Services;
 using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +16,8 @@ namespace Application.Services
 {
     public class TestRoleService
     {
-        public CoreService<Role, RoleDTO> CoreService { get; set; }
-        public TestRoleService(CoreService<Role, RoleDTO> coreService)
+        public ICoreService<Role, RoleDTO> CoreService { get; set; }
+        public TestRoleService(ICoreService<Role, RoleDTO> coreService)
         {
             CoreService = coreService;
         }

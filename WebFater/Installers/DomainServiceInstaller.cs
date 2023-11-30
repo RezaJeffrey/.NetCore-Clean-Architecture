@@ -1,4 +1,6 @@
-﻿using CoreLayer.Services;
+﻿using CoreLayer.Interfaces;
+using CoreLayer.Services;
+using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
@@ -15,8 +17,13 @@ namespace WebFater.Installers
             );
 
             service.AddScoped<DbContext, FaterTestContext>();
-            service.AddScoped(typeof(CoreService<,>));
-            
+            service.AddScoped(typeof(ICoreService<,>), typeof(CoreService<,>));
+
+
+            //service.AddScoped<ICoreService<User, UserDTO>, CoreService<User, UserDTO>>();
+            //service.AddScoped<ICoreService<Role, RoleDTO>, CoreService<Role, RoleDTO>>();
+            //service.AddScoped(typeof(CoreService<,>));
+
         }
     }
 }

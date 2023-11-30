@@ -31,7 +31,5 @@ public partial class User
 
     public long? DeleteUserId { get; set; }
 
-    public virtual ICollection<UserRole> UserRoleRoles { get; } = new List<UserRole>();
-
-    public virtual ICollection<UserRole> UserRoleUsers { get; } = new List<UserRole>();
+    public virtual ICollection<UserRole> UserRoles { get; } = new List<UserRole>();
 }

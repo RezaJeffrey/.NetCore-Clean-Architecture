@@ -1,6 +1,4 @@
 ﻿using Application.Services;
-using Domain.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebFater.Installers
 {
@@ -8,8 +6,9 @@ namespace WebFater.Installers
     {
         public static void AddApplicationLayerServices(this IServiceCollection service)
         {
-        
+
             service.AddTransient<TestRoleService, TestRoleService>();
+            service.AddTransient<AuthenticateService, AuthenticateService>();
         }
     }
 }

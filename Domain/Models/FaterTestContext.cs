@@ -68,11 +68,9 @@ public partial class FaterTestContext : DbContext
 
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC275E841770");
+            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC274A27D6E0");
 
-            entity.HasIndex(e => e.Id, "UQ__UserRole__3214EC26F88FC417").IsUnique();
-
-            entity.HasIndex(e => new { e.DeleteDate, e.DeleteUserId }, "idx_ddate_duserId");
+            entity.HasIndex(e => e.Id, "UQ__UserRole__3214EC26A132BC4F").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.CreateUserId).HasColumnName("CreateUserID");
@@ -81,12 +79,12 @@ public partial class FaterTestContext : DbContext
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRoleRoles)
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRoles_Roles_ID");
 
-            entity.HasOne(d => d.User).WithMany(p => p.UserRoleUsers)
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRoles_Users_ID");

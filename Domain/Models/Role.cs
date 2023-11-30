@@ -24,4 +24,6 @@ public partial class Role
     public long? DeleteDate { get; set; }
 
     public long? DeleteUserId { get; set; }
+
+    public virtual ICollection<UserRole> UserRoles { get; } = new List<UserRole>();
 }

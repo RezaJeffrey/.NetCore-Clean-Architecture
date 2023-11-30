@@ -1,8 +1,10 @@
 ﻿using Application.Services;
+using CoreLayer.Interfaces;
 using Domain.DTOs;
 using Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Utils.Mappings;
 
 namespace WebFater.Controllers
 {
@@ -11,9 +13,11 @@ namespace WebFater.Controllers
     public class RoleTestController : ControllerBase
     {
         private TestRoleService _roleService;
-        public RoleTestController(TestRoleService roleService)
+        private AuthenticateService _authenticateService;
+        public RoleTestController(TestRoleService roleService, AuthenticateService authenticateService)
         {
             _roleService = roleService;
+            _authenticateService = authenticateService;
         }
 
         [HttpGet("getRoles")]
@@ -57,6 +61,14 @@ namespace WebFater.Controllers
         {
             await _roleService.DeleteRoleByDTO(role);
             return Ok("successfully deleted");
+        }
+
+        [HttpGet("GetUserRolesById")]
+        public async Task<List<RoleDTO>> GetUserRoles(long Id)
+        {
+            var userRoles = await _authenticateService.FetchUserRoles(Id);
+            
+            return ObjectMapper.MapList<Role, RoleDTO>(userRoles);
         }
     }
 }
