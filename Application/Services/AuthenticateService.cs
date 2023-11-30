@@ -2,14 +2,16 @@
 using CoreLayer.Services;
 using Domain.DTOs;
 using Domain.Models;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -32,9 +34,45 @@ namespace Application.Services
         }
         #endregion
 
-        public Task<string> CreateToken(User user, List<Role> roles)
+        public string CreateToken(User user, List<Role> roles)
         {
-            throw new NotImplementedException();
+            Claim[] claims = new Claim[]
+            {
+                new Claim("UserId", user.Id.ToString()),
+                new Claim("UserName", user.UserName),
+            };
+
+            foreach (var role in roles)
+            {
+                claims.Append(
+                        new Claim("Role", role.Gcode.ToString())
+                    );
+            }
+
+
+            SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                            _configuration.GetSection("AppSettings:TokenKey").Value ?? string.Empty
+                        )
+                );
+
+            SigningCredentials signingCredentials = new SigningCredentials(
+                    tokenKey,
+                    SecurityAlgorithms.HmacSha512Signature
+                );
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(claims),
+                SigningCredentials = signingCredentials,
+                Expires = DateTime.Now.AddDays(1)
+            };
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            SecurityToken token = handler.CreateToken(tokenDescriptor);
+
+            return handler.WriteToken(token);
+
         }
         public async Task<(string hash, byte[] salt)> HashPassword(string password, byte[]? salt = null)
         {
@@ -95,5 +133,8 @@ namespace Application.Services
 
             return roles;
         }
+
+        // Login Method
+        // Register Method
     }
 }
