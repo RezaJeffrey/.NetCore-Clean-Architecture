@@ -31,6 +31,7 @@ namespace Application.Services
             _testRoleService = testRoleService;
         }
         #endregion
+
         public Task<string> CreateToken(User user, List<Role> roles)
         {
             throw new NotImplementedException();
