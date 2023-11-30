@@ -36,7 +36,7 @@ namespace Application.Services
 
         public string CreateToken(User user, List<Role> roles)
         {
-            Claim[] claims = new Claim[]
+            List<Claim> claims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString()),
                 new Claim("UserName", user.UserName),
@@ -44,7 +44,7 @@ namespace Application.Services
 
             foreach (var role in roles)
             {
-                claims.Append(
+                claims.Add(
                         new Claim("Role", role.Gcode.ToString())
                     );
             }
@@ -134,6 +134,10 @@ namespace Application.Services
             return roles;
         }
 
+        public async Task<User?> GetUserById(long UserId)
+        {
+            return await CoreService.FindByIdAsync(UserId);
+        }
         // Login Method
         // Register Method
     }
