@@ -3,6 +3,7 @@ using WebFater.Installers;
 using WebFater.Middlewares;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using CoreLayer.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services
 builder.Services.AddApplicationLayerServices();
 builder.Services.AddUtilityServices();
 
+// TODO move auth configs to Installers + Add 'AddServices' to Installers to install AllServices 
 // Authentication
 var signInKey = Encoding.UTF8.GetBytes(
         builder.Configuration.GetSection("AppSettings:TokenKey").Value ?? string.Empty 
@@ -33,8 +35,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidateIssuer = false,
                 IssuerSigningKey = new SymmetricSecurityKey(signInKey)
             };
+
         });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireRole3", policy => policy.Requirements.Add(new RoleAuthorizationRequirement("3")));
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
