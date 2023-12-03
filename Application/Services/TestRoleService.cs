@@ -99,8 +99,8 @@ namespace Application.Services
                 .Include(r => r.RoleParentRoles)
                 .ThenInclude(p => p.Parent)
                 .FirstOrDefault(rr => rr.Id == 2);
-            var all = CoreService.TableAll();
-            
+            var all = CoreService.TableAll().ToList();
+            var queried = CoreService.Table().ToList();
         }
     }
 }
