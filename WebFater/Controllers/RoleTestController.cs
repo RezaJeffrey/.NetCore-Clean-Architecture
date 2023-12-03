@@ -5,6 +5,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Utils.Exceptions;
 using Utils.Mappings;
 
@@ -90,6 +91,33 @@ namespace WebFater.Controllers
         {
             string requiredRole = "2";
             var check = _roleService.CheckHandler(requiredRole);
+        }
+
+        [HttpGet("CheckHandlerAuth")]
+        [Authorize(Policy = "RequireRole2")]
+        //[Authorize]
+        public void CheckHandlerauth()
+        {
+            string requiredRole = "2";
+            var check = _roleService.CheckHandler(requiredRole);
+        }
+
+        [HttpGet("GetToken")]
+        [AllowAnonymous]
+        public string GetAccessToken()
+        {
+            User? userdb = _roleService.CoreService.Table<User>()
+                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .FirstOrDefault(user => user.Id == 1);
+            
+            var userRoles = userdb?.UserRoles
+                .Where(ur => ur.DeleteDate == 0 || ur.DeleteDate == null)
+                .Select(ur => ur.Role)
+                .Where(r => r.DeleteDate == null || r.DeleteDate == 0)
+                .ToList();
+            if (userRoles == null) throw new AppRuleException();
+            if (userdb == null) throw new AppRuleException();
+            return _authenticateService.CreateToken(userdb, userRoles);
         }
 
     }

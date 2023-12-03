@@ -4,6 +4,7 @@ using WebFater.Middlewares;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CoreLayer.Handlers;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,8 +41,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireRole3", policy => policy.Requirements.Add(new RoleAuthorizationRequirement("3")));
+    options.AddPolicy("RequireRole2", policy => policy.Requirements.Add(new RoleAuthorizationRequirement("2")));
 });
+builder.Services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

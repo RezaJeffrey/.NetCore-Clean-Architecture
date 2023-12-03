@@ -35,10 +35,10 @@ namespace CoreLayer.Handlers
 
         private bool UserHasRoleOrParents(ClaimsPrincipal user, string requiredRole)
         {
-
+            var userId = long.Parse(user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value); // TODO remove this after implementation of utils.authservice
             var userdb = CoreService.Table<User>()
                 .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-                .FirstOrDefault(u => u.Id == long.Parse(user.Claims.First(c => c.Type == "Role").Value)); // TODO use Utils.AuthService.GetUserID from Claims
+                .FirstOrDefault(u => u.Id == userId); // TODO use Utils.AuthService.GetUserID from Claims
 
             var required_role = CoreService.Table()
                 .Include(r =>

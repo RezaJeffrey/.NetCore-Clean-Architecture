@@ -42,7 +42,7 @@ namespace Application.Services
                 new Claim("UserName", user.UserName, "Identity"),
                 //new Claim("UserRole", user.RoleGcode, "MainRole"),
             };
-
+            if (!roles.Any()) throw new AppRuleException("User has no roles, account might not be accepted. Please Wait.");
             foreach (var role in roles)
             {
                 claims.Add(
