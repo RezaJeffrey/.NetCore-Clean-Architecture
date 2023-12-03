@@ -120,5 +120,12 @@ namespace WebFater.Controllers
             return _authenticateService.CreateToken(userdb, userRoles);
         }
 
+        [HttpGet("CheckQueryFilter")]
+        [AllowAnonymous]
+        public void CheckQuery()
+        {
+            _roleService.CheckQueryFilter();
+        }
+
     }
 }

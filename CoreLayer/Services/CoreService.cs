@@ -23,22 +23,22 @@ namespace CoreLayer.Services
 
         public IQueryable<T> Table()
         {
-            return dbTable.Where(Entity => Entity.DeleteDate == null || Entity.DeleteDate == 0);
+            return dbTable;
         }
 
         public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel
         {
-            return db.Set<TEntity>().Where(Entity => Entity.DeleteDate == null || Entity.DeleteDate == 0);
+            return db.Set<TEntity>();
         }
 
         public IQueryable<T> TableAll()
         {
-            return dbTable;
+            return dbTable.IgnoreQueryFilters();
         }
 
         public IQueryable<TEntity> TableAll<TEntity>() where TEntity : BaseModel
         {
-            return db.Set<TEntity>();
+            return db.Set<TEntity>().IgnoreQueryFilters();
         }
 
         public async Task<T?> FindByIdAsync(long id)

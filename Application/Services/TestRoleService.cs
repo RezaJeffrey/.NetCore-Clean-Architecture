@@ -89,5 +89,18 @@ namespace Application.Services
                 );
 
         }
+        public void CheckQueryFilter()
+        {
+            var userdb = CoreService.Table<User>()
+                             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                             .FirstOrDefault(u => u.Id == 1);
+
+            var required_role = CoreService.Table()
+                .Include(r => r.RoleParentRoles)
+                .ThenInclude(p => p.Parent)
+                .FirstOrDefault(rr => rr.Id == 2);
+            var all = CoreService.TableAll();
+            
+        }
     }
 }
