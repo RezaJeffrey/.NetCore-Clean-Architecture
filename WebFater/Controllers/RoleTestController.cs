@@ -83,5 +83,14 @@ namespace WebFater.Controllers
             
             return ObjectMapper.MapList<Role, RoleDTO>(userRoles);
         }
+
+        [HttpGet("CheckHandler")]
+        [AllowAnonymous]
+        public void CheckHandlers()
+        {
+            string requiredRole = "2";
+            var check = _roleService.CheckHandler(requiredRole);
+        }
+
     }
 }

@@ -48,21 +48,25 @@ public partial class FaterTestContext : DbContext
 
         modelBuilder.Entity<RoleParent>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RolePare__3214EC27E70A875D");
+            entity.HasKey(e => new { e.Id, e.ParentId, e.RoleId }).HasName("PK__RolePare__E4AD83F9C3CB6525");
 
-            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("ID");
+            entity.Property(e => e.ParentId).HasColumnName("ParentID");
+            entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.CreateUserId).HasColumnName("CreateUserID");
             entity.Property(e => e.DeleteUserId).HasColumnName("DeleteUserID");
             entity.Property(e => e.ModifyUserId).HasColumnName("ModifyUserID");
-            entity.Property(e => e.Pid).HasColumnName("PID");
-            entity.Property(e => e.RoleId).HasColumnName("RoleID");
 
-            entity.HasOne(d => d.PidNavigation).WithMany(p => p.RoleParentPidNavigations)
-                .HasForeignKey(d => d.Pid)
+            entity.HasOne(d => d.Parent).WithMany(p => p.RoleParentParents)
+                .HasForeignKey(d => d.ParentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RoleParent_ParentRole_ID");
 
             entity.HasOne(d => d.Role).WithMany(p => p.RoleParentRoles)
                 .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RoleParents_Role_ID");
         });
 

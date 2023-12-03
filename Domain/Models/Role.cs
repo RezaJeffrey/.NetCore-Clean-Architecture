@@ -25,7 +25,7 @@ public partial class Role
 
     public long? DeleteUserId { get; set; }
 
-    public virtual ICollection<RoleParent> RoleParentPidNavigations { get; } = new List<RoleParent>();
+    public virtual ICollection<RoleParent> RoleParentParents { get; } = new List<RoleParent>();
 
     public virtual ICollection<RoleParent> RoleParentRoles { get; } = new List<RoleParent>();
 

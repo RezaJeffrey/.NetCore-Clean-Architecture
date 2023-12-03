@@ -7,9 +7,9 @@ public partial class RoleParent
 {
     public long Id { get; set; }
 
-    public long? RoleId { get; set; }
+    public long RoleId { get; set; }
 
-    public long? Pid { get; set; }
+    public long ParentId { get; set; }
 
     public long? CreateDate { get; set; }
 
@@ -23,7 +23,7 @@ public partial class RoleParent
 
     public long? DeleteUserId { get; set; }
 
-    public virtual Role? PidNavigation { get; set; }
+    public virtual Role Parent { get; set; } = null!;
 
-    public virtual Role? Role { get; set; }
+    public virtual Role Role { get; set; } = null!;
 }

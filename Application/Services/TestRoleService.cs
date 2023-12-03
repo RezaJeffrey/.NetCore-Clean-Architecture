@@ -64,5 +64,30 @@ namespace Application.Services
             await CoreService.CommitAsync();
 
         }
+        public bool CheckHandler(string requiredRole)
+        {
+
+            var userdb = CoreService.Table<User>()
+                             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                             .FirstOrDefault(u => u.Id == 1);
+            
+            var required_role = CoreService.Table()
+                .Include(r =>
+                    r.RoleParentRoles.Where(rp => rp.DeleteDate == null || rp.DeleteDate == 0)
+                    )
+                .ThenInclude(p => p.Parent)
+                .FirstOrDefault(r => r.Gcode == int.Parse(requiredRole));
+
+            #region check null values
+            if (required_role == null) throw new AppRuleException("policy not correct!");
+            if (userdb == null) throw new AppRuleException("user not found!");
+            #endregion
+
+            return userdb.UserRoles.Any(ur =>
+                    ur.Role.Gcode == required_role.Gcode
+                 || required_role.RoleParentRoles.Any(p => p.Role?.Gcode == ur.Role.Gcode)
+                );
+
+        }
     }
 }

@@ -36,24 +36,25 @@ namespace CoreLayer.Handlers
         private bool UserHasRoleOrParents(ClaimsPrincipal user, string requiredRole)
         {
 
-
             var userdb = CoreService.Table<User>()
-                             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-                             .FirstOrDefault(u => u.Id == 1);
-            //                  .FirstOrDefault(u => u.Id == utils.AuthService.GetUserId() )
+                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .FirstOrDefault(u => u.Id == long.Parse(user.Claims.First(c => c.Type == "Role").Value)); // TODO use Utils.AuthService.GetUserID from Claims
 
             var required_role = CoreService.Table()
-                .Include(rr => rr.RoleParentPidNavigations).ThenInclude(p => p.Role)
-                .FirstOrDefault(r => r.Gcode == int.Parse(requiredRole));  // check DDates
+                .Include(r =>
+                    r.RoleParentRoles.Where(rp => rp.DeleteDate == null || rp.DeleteDate == 0)
+                    )
+                .ThenInclude(p => p.Parent)
+                .FirstOrDefault(r => r.Gcode == int.Parse(requiredRole));
 
             #region check null values
-            if (required_role == null)  throw new AppRuleException("policy not correct!");
+            if (required_role == null) throw new AppRuleException("policy not correct!");
             if (userdb == null) throw new AppRuleException("user not found!");
             #endregion
 
             return userdb.UserRoles.Any(ur =>
                     ur.Role.Gcode == required_role.Gcode
-                 || required_role.RoleParentPidNavigations.Any(p => p.Role?.Gcode == ur.Role.Gcode)
+                 || required_role.RoleParentRoles.Any(p => p.Role?.Gcode == ur.Role.Gcode)
                 );
         }
     }
