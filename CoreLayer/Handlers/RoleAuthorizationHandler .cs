@@ -37,7 +37,10 @@ namespace CoreLayer.Handlers
         {
             var userId = long.Parse(user.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value); // TODO remove this after implementation of utils.authservice
             var userdb = CoreService.Table<User>()
-                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .Include(u =>
+                    u.UserRoles.Where
+                            (ur => ur.DeleteDate == null || ur.DeleteDate == 0)
+                    ).ThenInclude(ur => ur.Role)
                 .FirstOrDefault(u => u.Id == userId); // TODO use Utils.AuthService.GetUserID from Claims
 
             var required_role = CoreService.Table()
