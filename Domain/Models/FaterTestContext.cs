@@ -17,6 +17,8 @@ public partial class FaterTestContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<RoleParent> RoleParents { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
@@ -44,6 +46,30 @@ public partial class FaterTestContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(255);
         });
 
+        modelBuilder.Entity<RoleParent>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.ParentId, e.RoleId }).HasName("PK__RolePare__E4AD83F9C3CB6525");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("ID");
+            entity.Property(e => e.ParentId).HasColumnName("ParentID");
+            entity.Property(e => e.RoleId).HasColumnName("RoleID");
+            entity.Property(e => e.CreateUserId).HasColumnName("CreateUserID");
+            entity.Property(e => e.DeleteUserId).HasColumnName("DeleteUserID");
+            entity.Property(e => e.ModifyUserId).HasColumnName("ModifyUserID");
+
+            entity.HasOne(d => d.Parent).WithMany(p => p.RoleParentParents)
+                .HasForeignKey(d => d.ParentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RoleParent_ParentRole_ID");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.RoleParentRoles)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RoleParents_Role_ID");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Users__3214EC27438D4D9D");
@@ -68,9 +94,9 @@ public partial class FaterTestContext : DbContext
 
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC274A27D6E0");
+            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC27A53E145F");
 
-            entity.HasIndex(e => e.Id, "UQ__UserRole__3214EC26A132BC4F").IsUnique();
+            entity.HasIndex(e => e.Id, "UQ__UserRole__3214EC26E13845A4").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.CreateUserId).HasColumnName("CreateUserID");

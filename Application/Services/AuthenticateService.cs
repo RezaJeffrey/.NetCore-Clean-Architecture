@@ -33,15 +33,16 @@ namespace Application.Services
             _testRoleService = testRoleService;
         }
         #endregion
-
+        // TODO move methods to Auth Utils
         public string CreateToken(User user, List<Role> roles)
-        {
+        { // TODO add user main role in DB and set it as a claim
             List<Claim> claims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString(), "Identity"),
                 new Claim("UserName", user.UserName, "Identity"),
+                //new Claim("UserRole", user.RoleGcode, "MainRole"),
             };
-
+            if (!roles.Any()) throw new AppRuleException("User has no roles, account might not be accepted. Please Wait.");
             foreach (var role in roles)
             {
                 claims.Add(
@@ -138,6 +139,7 @@ namespace Application.Services
         {
             return await CoreService.FindByIdAsync(UserId);
         }
+       
         // Login Method
         // Register Method
     }
