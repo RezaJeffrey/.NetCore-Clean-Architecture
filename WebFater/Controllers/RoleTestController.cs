@@ -125,6 +125,13 @@ namespace WebFater.Controllers
         public void CheckQuery()
         {
             _roleService.CheckQueryFilter();
+        } 
+
+        [HttpGet("CheckExpiryDate")]
+        [Authorize]
+        public async Task CheckExpiryDate()
+        {
+            await _authenticateService.GetUserById(1);
         }
 
     }

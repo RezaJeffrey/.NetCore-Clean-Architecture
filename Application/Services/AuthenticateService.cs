@@ -25,12 +25,14 @@ namespace Application.Services
         private readonly IConfiguration _configuration;
         private readonly ICoreService<User, UserDTO> CoreService;
         private readonly TestRoleService _testRoleService;
+        private readonly AuthUcService AuthUcService;
         #region constructor
-        public AuthenticateService(IConfiguration configuration, ICoreService<User, UserDTO> coreService, TestRoleService testRoleService)
+        public AuthenticateService(IConfiguration configuration, ICoreService<User, UserDTO> coreService, TestRoleService testRoleService, AuthUcService authUcSerivce)
         {
             _configuration = configuration;
             CoreService = coreService;
             _testRoleService = testRoleService;
+            AuthUcService = authUcSerivce;
         }
         #endregion
         // TODO move methods to Auth Utils
@@ -137,7 +139,11 @@ namespace Application.Services
 
         public async Task<User?> GetUserById(long UserId)
         {
-            return await CoreService.FindByIdAsync(UserId);
+
+            var user =  await CoreService.FindByIdAsync(UserId);
+            var is_valid = await AuthUcService.ValidateUserToken(user);
+            if (is_valid) return user;
+            return null;
         }
        
         // Login Method

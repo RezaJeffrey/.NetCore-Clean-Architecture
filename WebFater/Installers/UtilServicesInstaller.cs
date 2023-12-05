@@ -1,4 +1,5 @@
 ﻿using Application.Services;
+using Utils.Services;
 
 namespace WebFater.Installers
 {
@@ -8,6 +9,7 @@ namespace WebFater.Installers
         {
 
             service.AddAutoMapper(typeof(Program));
+            service.AddScoped(typeof(AuthUtilService));
         }
     }
 }
