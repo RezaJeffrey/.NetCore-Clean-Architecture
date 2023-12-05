@@ -43,12 +43,6 @@ namespace CoreLayer.Services
 
         public async Task<T?> FindByIdAsync(long id)
         {
-            //var parameter = Expression.Parameter(typeof(T), "Entity");
-            //var property = Expression.Property(parameter, "Id");
-            //var body = Expression.Equal(property, Expression.Constant(id));
-            //var expression = Expression.Lambda<Func<T, bool>>(body, parameter);
-
-            //return await Table().FirstOrDefaultAsync(expression);
             return await Table().FirstOrDefaultAsync(Entity => Entity.Id == id);
         }
 
