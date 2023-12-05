@@ -94,10 +94,10 @@ namespace Utils.Services
             string? UserId = getClaims().Where(claim => claim.Type == "UserId").FirstOrDefault()?.Value;
             return long.TryParse(UserId, out long userId) ? userId : null;   
         }
-        public string GetUserToken()
+        public string? GetUserToken()
         {
             string? accessToken = HttpContextAccessor.HttpContext?.Request.Headers[HeaderNames.Authorization];
-            accessToken = accessToken.Replace("Bearer ", "");
+            accessToken = accessToken?.Replace("Bearer ", "");
             return accessToken;
         }
     }
