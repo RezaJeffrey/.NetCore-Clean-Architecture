@@ -16,19 +16,10 @@ using System.Threading.Tasks;
 using Utils.Exceptions;
 
 
-
 namespace Utils.Services
 {
     public class AuthUtilService
     {
-        /* Implement Authorization System 
-         * 
-         * get user claims
-         * get user Id
-         * get user username
-         * get user Roles
-         * 
-        */
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor HttpContextAccessor;
         public AuthUtilService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
@@ -93,6 +84,10 @@ namespace Utils.Services
         {
             string? UserId = getClaims().Where(claim => claim.Type == "UserId").FirstOrDefault()?.Value;
             return long.TryParse(UserId, out long userId) ? userId : null;   
+        }
+        public List<Claim> getRoleClaims()
+        {
+            return getClaims().Where(claim => claim.Type == "Role").ToList();
         }
         public string? GetUserToken()
         {
