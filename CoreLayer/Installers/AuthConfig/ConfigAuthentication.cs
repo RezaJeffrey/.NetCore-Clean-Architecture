@@ -1,11 +1,12 @@
-﻿using CoreLayer.Handlers;
+﻿using CoreLayer.Installers.AuthConfig.Handlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace WebFater.Installers
+namespace CoreLayer.Installers.AuthConfig
 {
     public static class ConfigAuthentication
     {

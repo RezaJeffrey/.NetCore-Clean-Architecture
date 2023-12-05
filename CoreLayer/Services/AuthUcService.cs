@@ -32,7 +32,7 @@ namespace CoreLayer.Services
         }
 
         public async Task<bool> ValidateUserToken(User user)
-        { // TODO : modify Installers
+        { 
             var userClaims = AuthUtilService.getClaims();
             var userId = AuthUtilService.getUserId();
             if (userId == null) throw new AppRuleException("Token Not Valid, missing claim: UserId");

@@ -1,4 +1,9 @@
-﻿namespace WebFater.Installers
+﻿using Application.Installers;
+using CoreLayer.Installers;
+using CoreLayer.Installers.AuthConfig;
+using Utils.Installers;
+
+namespace WebFater.Installers
 {
     public static class ServicesInstaller
     {

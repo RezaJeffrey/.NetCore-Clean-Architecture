@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoreLayer.Handlers
+namespace CoreLayer.Installers.AuthConfig.Handlers
 {
     public class RoleAuthorizationRequirement : IAuthorizationRequirement
     {

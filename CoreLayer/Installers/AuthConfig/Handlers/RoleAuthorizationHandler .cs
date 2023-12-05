@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Utils.Exceptions;
 
-namespace CoreLayer.Handlers
+namespace CoreLayer.Installers.AuthConfig.Handlers
 {
     public class RoleAuthorizationHandler : AuthorizationHandler<RoleAuthorizationRequirement>
     {
