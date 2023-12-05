@@ -72,5 +72,52 @@ namespace CoreLayer.Services
             return roles;
         }
 
+        public string CreateToken(User user, List<Role> roles)
+        { 
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim("UserId", user.Id.ToString(), "Identity"),
+                new Claim("UserName", user.UserName, "Identity"),
+            };
+
+            string? mainRole = user.MainRole?.Role.Gcode.ToString();
+            if (mainRole != null)
+            {
+                claims.Add(new Claim("MainRole", mainRole, "Role"));
+            }
+
+            if (!roles.Any()) throw new AppRuleException("User has no roles, account might not be accepted. Please Wait.");
+            foreach (var role in roles)
+            {
+                claims.Add(
+                        new Claim("Role", role.Gcode.ToString(), "Role")
+                    );
+            }
+
+
+            SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                            _configuration.GetSection("AppSettings:TokenKey").Value ?? string.Empty
+                        )
+                );
+
+            SigningCredentials signingCredentials = new SigningCredentials(
+                    tokenKey,
+                    SecurityAlgorithms.HmacSha512Signature
+                );
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(claims),
+                SigningCredentials = signingCredentials,
+                Expires = DateTime.Now.AddDays(1)
+            };
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            SecurityToken token = handler.CreateToken(tokenDescriptor);
+
+            return handler.WriteToken(token);
+
+        }
     }
 }

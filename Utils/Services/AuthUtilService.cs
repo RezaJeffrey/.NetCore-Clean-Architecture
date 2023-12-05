@@ -95,5 +95,9 @@ namespace Utils.Services
             accessToken = accessToken?.Replace("Bearer ", "");
             return accessToken;
         }
+        public string? GetUserRole()
+        {
+            return getClaims().Where(claim => claim.Type == "MainRole").FirstOrDefault()?.Value;
+        }
     }
 }
