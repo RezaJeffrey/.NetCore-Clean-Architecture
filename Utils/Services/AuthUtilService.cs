@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -82,6 +83,16 @@ namespace Utils.Services
                 return descriptedToken.Claims;
             }
             return new List<Claim>();
+        }
+
+        public string? getUserName()
+        {
+            return getClaims().Where(claim => claim.Type == "UserName").FirstOrDefault()?.Value;
+        }
+        public long? getUserId()
+        {
+            string? UserId = getClaims().Where(claim => claim.Type == "UserId").FirstOrDefault()?.Value;
+            return long.TryParse(UserId, out long userId) ? userId : null;   
         }
         public string GetUserToken()
         {

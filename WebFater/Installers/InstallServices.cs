@@ -1,0 +1,14 @@
+﻿namespace WebFater.Installers
+{
+    public static class ServicesInstaller
+    {
+        public static void InstallServices(this IServiceCollection services, IConfiguration configuration) 
+        {
+            services.AddGlobalServices(configuration);
+            services.UseDbContext(configuration);
+            services.AddUtilityServices();
+            services.AddApplicationLayerServices();
+            services.ConfigureAuthentication(configuration);
+        }
+    }
+}

@@ -32,10 +32,12 @@ namespace CoreLayer.Services
         }
 
         public async Task<bool> ValidateUserToken(User user)
-        {
+        { // TODO : modify Installers
             var userClaims = AuthUtilService.getClaims();
+            var userId = AuthUtilService.getUserId();
+            if (userId == null) throw new AppRuleException("Token Not Valid, missing claim: UserId");
 
-            User? User = await CoreService.FindByIdAsync(user.Id);
+            User? User = await CoreService.FindByIdAsync((long)userId);
             if (User == null) throw new AppRuleException("user doesn't exist");
 
             var UserRoles  = CoreService.Table<UserRole>()

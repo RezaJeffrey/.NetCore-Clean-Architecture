@@ -21,13 +21,6 @@ namespace WebFater.Installers
             service.AddScoped<DbContext, FaterTestContext>();
             service.AddScoped(typeof(ICoreService<,>), typeof(CoreService<,>));
             service.AddScoped(typeof(AuthUcService));
-            // move to another Installer Dir
-            service.AddSingleton(typeof(IHttpContextAccessor), typeof(HttpContextAccessor));
-
-
-            //service.AddScoped<ICoreService<User, UserDTO>, CoreService<User, UserDTO>>();
-            //service.AddScoped<ICoreService<Role, RoleDTO>, CoreService<Role, RoleDTO>>();
-            //service.AddScoped(typeof(CoreService<,>));
 
         }
     }
