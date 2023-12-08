@@ -17,11 +17,9 @@ namespace WebFater.Controllers
     public class RoleTestController : ControllerBase
     {
         private TestRoleService _roleService;
-        private AuthenticateService _authenticateService;
-        public RoleTestController(TestRoleService roleService, AuthenticateService authenticateService)
+        public RoleTestController(TestRoleService roleService)
         {
             _roleService = roleService;
-            _authenticateService = authenticateService;
         }
 
         [HttpGet("getRoles")]
@@ -67,23 +65,6 @@ namespace WebFater.Controllers
             return Ok("successfully deleted");
         }
 
-        [HttpGet("GetUserRolesById")]
-        [Authorize]
-        public async Task<List<RoleDTO>> GetUserRoles(long Id)
-        {
-            var userRoles = await _authenticateService.FetchUserRoles(Id);
-            // Test Authentication
-            User? user = await _authenticateService.GetUserById(1);
-            if (user == null) throw new AppRuleException("user not found");
-
-            var token = _authenticateService.CreateToken(user, userRoles);
-            var roles = User.FindAll(a => a.Type == "Role");
-            var role = roles.FirstOrDefault()?.Value;
-            
-            //
-            
-            return ObjectMapper.MapList<Role, RoleDTO>(userRoles);
-        }
 
         [HttpGet("CheckHandler")]
         [AllowAnonymous]
@@ -104,7 +85,7 @@ namespace WebFater.Controllers
 
         [HttpGet("GetToken")]
         [AllowAnonymous]
-        public string GetAccessToken()
+        public void GetAccessToken()
         {
             User? userdb = _roleService.CoreService.Table<User>()
                 .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
@@ -117,7 +98,7 @@ namespace WebFater.Controllers
                 .ToList();
             if (userRoles == null) throw new AppRuleException();
             if (userdb == null) throw new AppRuleException();
-            return _authenticateService.CreateToken(userdb, userRoles);
+            //TODO  return _authenticateService.GetAccessToken(userdb, userRoles) + GetRefreshToken()
         }
 
         [HttpGet("CheckQueryFilter")]
@@ -125,6 +106,12 @@ namespace WebFater.Controllers
         public void CheckQuery()
         {
             _roleService.CheckQueryFilter();
+        } 
+
+        [HttpGet("CheckExpiryDate")]
+        [Authorize]
+        public async Task CheckExpiryDate()
+        {
         }
 
     }

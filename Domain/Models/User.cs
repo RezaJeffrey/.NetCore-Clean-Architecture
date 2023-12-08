@@ -13,6 +13,8 @@ public partial class User
 
     public string? LastName { get; set; }
 
+    public long? MainRoleId { get; set; }
+
     public string? PhoneNumber { get; set; }
 
     public byte[]? PasswordHash { get; set; }
@@ -30,6 +32,8 @@ public partial class User
     public long? DeleteDate { get; set; }
 
     public long? DeleteUserId { get; set; }
+
+    public virtual UserRole? MainRole { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; } = new List<UserRole>();
 }

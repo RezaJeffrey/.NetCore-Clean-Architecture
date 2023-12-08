@@ -85,11 +85,16 @@ public partial class FaterTestContext : DbContext
             entity.Property(e => e.DeleteUserId).HasColumnName("DeleteUserID");
             entity.Property(e => e.FirstName).HasMaxLength(255);
             entity.Property(e => e.LastName).HasMaxLength(255);
+            entity.Property(e => e.MainRoleId).HasColumnName("MainRoleID");
             entity.Property(e => e.ModifyUserId).HasColumnName("ModifyUserID");
             entity.Property(e => e.PhoneNumber).HasMaxLength(15);
             entity.Property(e => e.UserName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.MainRole).WithMany(p => p.Users)
+                .HasForeignKey(d => d.MainRoleId)
+                .HasConstraintName("FK_Users_UserRoles");
         });
 
         modelBuilder.Entity<UserRole>(entity =>
