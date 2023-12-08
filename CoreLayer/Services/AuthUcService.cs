@@ -95,28 +95,7 @@ namespace CoreLayer.Services
             }
 
 
-            SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(
-                            _configuration.GetSection("AppSettings:TokenKey").Value ?? string.Empty
-                        )
-                );
-
-            SigningCredentials signingCredentials = new SigningCredentials(
-                    tokenKey,
-                    SecurityAlgorithms.HmacSha512Signature
-                );
-
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Subject = new ClaimsIdentity(claims),
-                SigningCredentials = signingCredentials,
-                Expires = DateTime.Now.AddDays(1)
-            };
-
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            SecurityToken token = handler.CreateToken(tokenDescriptor);
-
-            return handler.WriteToken(token);
+            return AuthUtilService.GenerateToken(claims);
 
         }
     }

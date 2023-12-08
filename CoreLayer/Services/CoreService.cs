@@ -113,7 +113,7 @@ namespace CoreLayer.Services
 
         }
 
-        public async Task Delete(T InputEntity, bool save = true)  // delete by item object
+        public async Task Delete(T InputEntity, bool save = true) 
         {
             try
             {
@@ -151,7 +151,6 @@ namespace CoreLayer.Services
         }
 
         public async Task Update(T InputEntity, bool save = true)
-        // TODO Update Not Tested, Test after implementation of Mdate and MuserID in 
         {
             try
             {
@@ -209,7 +208,7 @@ namespace CoreLayer.Services
         public async Task BeginTransaction()
         {
             await db.Database.BeginTransactionAsync();
-        } // TODO Test Transactions
+        } 
 
         public async Task CommitTransaction()
         {

@@ -57,6 +57,32 @@ namespace Utils.Services
             return salt;
         }
 
+        public string GenerateToken(List<Claim> claims)
+        {
+            SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                            _configuration.GetSection("AppSettings:TokenKey").Value ?? string.Empty
+                        )
+                );
+
+            SigningCredentials signingCredentials = new SigningCredentials(
+                    tokenKey,
+                    SecurityAlgorithms.HmacSha512Signature
+                );
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(claims),
+                SigningCredentials = signingCredentials,
+                Expires = DateTime.Now.AddDays(1)
+            };
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            SecurityToken token = handler.CreateToken(tokenDescriptor);
+
+            return handler.WriteToken(token);
+        }
+
         public async Task<bool> ValidatePassword(string password, byte[] salt, string hash)
         {
             var passwordHash = await HashPassword(password, salt);
