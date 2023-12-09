@@ -33,6 +33,8 @@ public partial class User
 
     public long? DeleteUserId { get; set; }
 
+    public virtual ICollection<LogLogin> LogLogins { get; } = new List<LogLogin>();
+
     public virtual UserRole? MainRole { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; } = new List<UserRole>();
