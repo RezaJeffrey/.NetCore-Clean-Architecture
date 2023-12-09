@@ -26,7 +26,8 @@ namespace Application.Services
             CoreService<User, UserDTO> coreService,
             AuthUtilService authUtilService,
             TestRoleService roleService,
-            LoginLogService loginLogService
+            LoginLogService loginLogService,
+            UserRoleService UserRoleService
             )
         {
             CoreService = coreService;
