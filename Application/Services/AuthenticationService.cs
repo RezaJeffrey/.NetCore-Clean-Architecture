@@ -52,7 +52,7 @@ namespace Application.Services
             return AuthUcService.CreateToken(user, userRoles);
         }
         
-        public async Task<string> Login(AuthDTO user_dto)
+        public async Task<string> GetAccessToken(AuthDTO user_dto)
         {
             User? user = CoreService.Table()
                 .FirstOrDefault(u => u.UserName == user_dto.UserName);
