@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Domain.DTOs
 {
-    public class RoleDTO
+    public class UserRoleDTO
     {
-        public string? Name { get; set; }
-
-        public int Gcode { get; set; }
-
-        public string? Description { get; set; }
+        public long UserId { get; set; }
+        public long RoleId { get; set; }
     }
 }

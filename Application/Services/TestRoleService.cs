@@ -102,5 +102,26 @@ namespace Application.Services
             var all = CoreService.TableAll().ToList();
             var queried = CoreService.Table().ToList();
         }
+
+        public async Task<bool> CheckRoleAvailable(List<RoleDTO> roles)
+        {
+            var db_roles = await CoreService.Table().Select(role => role.Gcode).ToListAsync();
+            foreach (int? role in roles.Select(r => r.Gcode))
+            {
+                if (role != null && !db_roles.Contains((int)role) )
+                    throw new AppRuleException("role doesn't exist in database");
+            }
+            return true;
+        }
+        public async Task<bool> CheckRoleAvailable(List<int> roleGcodes)
+        {
+            var db_roles = await CoreService.Table().Select(role => role.Gcode).ToListAsync();
+            foreach (int? role in roleGcodes)
+            {
+                if (role != null && !db_roles.Contains((int)role))
+                    return false;
+            }
+            return true;
+        }
     }
 }
