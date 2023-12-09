@@ -20,14 +20,12 @@ namespace Application.Services
         private readonly AuthUcService AuthUcService;
         private readonly AuthUtilService AuthUtilService;
         private readonly TestRoleService RoleService;
-        private readonly UserRoleService UserRoleService;
         private readonly LoginLogService LoginLogService;
         public AuthenticationService(
             AuthUcService authUcService,
             CoreService<User, UserDTO> coreService,
             AuthUtilService authUtilService,
             TestRoleService roleService,
-            UserRoleService userRoleService,
             LoginLogService loginLogService
             )
         {
@@ -36,6 +34,7 @@ namespace Application.Services
             AuthUtilService = authUtilService;
             RoleService = roleService;
             LoginLogService = loginLogService;  
+
         }
         
         public async Task<string> RefreshToken(string accessToken)
