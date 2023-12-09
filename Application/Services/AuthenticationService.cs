@@ -21,18 +21,21 @@ namespace Application.Services
         private readonly AuthUtilService AuthUtilService;
         private readonly TestRoleService RoleService;
         private readonly UserRoleService UserRoleService;
+        private readonly LoginLogService LoginLogService;
         public AuthenticationService(
             AuthUcService authUcService,
             CoreService<User, UserDTO> coreService,
             AuthUtilService authUtilService,
             TestRoleService roleService,
-            UserRoleService userRoleService
+            UserRoleService userRoleService,
+            LoginLogService loginLogService
             )
         {
             CoreService = coreService;
             AuthUcService = authUcService;
             AuthUtilService = authUtilService;
             RoleService = roleService;
+            LoginLogService = loginLogService;  
         }
         
         public async Task<string> RefreshToken(string accessToken)
@@ -58,12 +61,32 @@ namespace Application.Services
                 .FirstOrDefault(u => u.UserName == user_dto.UserName);
 
             if (user == null) throw new AppRuleException("Wrong username or password");
-            // TODO log login attempts
 
-            
+            // TODO log login attempts
+            var Now = DateTime.Now.Ticks;
+            var logs = CoreService.Table<LogLogin>()
+                .Where(l => l.UserId == user.Id && l.ExpDate > Now && !l.IsSuccess);
+            if (logs.Count() > 5) 
+                throw new AppRuleException(
+                        "account have been limited due to 5 failed login attempts, please try again later or Inform us"
+                    );
+
+            LogLogin log = new LogLogin();
+            log.UserId = user.Id;
+            log.IpAddress = AuthUtilService.GetClientIp();
+            log.ExpDate = DateTime.Now.AddDays(1).Ticks;
+
+
             bool passwordMatch = await AuthUtilService.ValidatePassword(user_dto.Password, user.PasswordSalt, user.PasswordHash);
             if (!passwordMatch)
+            {
+                // Insert log
+                log.IsSuccess = false;
+                await LoginLogService.CoreService.Create(log);
+
                 throw new AppRuleException("Wrong username or password");
+            }
+                
 
             var userRoles = await CoreService.Table<UserRole>()
                 .Include(ur => ur.Role)
@@ -71,7 +94,11 @@ namespace Application.Services
                 .Select(ur => ur.Role)
                 .ToListAsync();
 
-            return AuthUcService.CreateToken(user, userRoles);
+            var token = AuthUcService.CreateToken(user, userRoles);
+            log.IsSuccess = true;
+            await LoginLogService.CoreService.Create(log);
+
+            return token;
         }
         public async Task<string> Register(AuthDTO user_dto)
         {
@@ -89,6 +116,7 @@ namespace Application.Services
 
                 // TODO add user and commit
                 var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(user_dto);
+
                 var hashService = await AuthUtilService.HashPassword(user_dto.Password);
                 RegisterUser.PasswordHash = hashService.hash;
                 RegisterUser.PasswordSalt = hashService.salt;
