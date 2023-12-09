@@ -129,5 +129,10 @@ namespace Utils.Services
         {
             return getClaims().Where(claim => claim.Type == "MainRole").FirstOrDefault()?.Value;
         }
+
+        public string? GetClientIp()
+        {
+            return HttpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+        }
     }
 }
