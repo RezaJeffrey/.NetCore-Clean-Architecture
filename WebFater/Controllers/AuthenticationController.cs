@@ -23,6 +23,13 @@ namespace WebFater.Controllers
         {
             return await AuthenticationService.Register(user);
         }
+        
+        [HttpPost("Login")]
+        [AllowAnonymous]
+        public async Task<string> Login(AuthDTO user)
+        {
+            return await AuthenticationService.GetAccessToken(user);
+        }
 
         [HttpGet("TestToken")]
         [Authorize]

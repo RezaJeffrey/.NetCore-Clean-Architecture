@@ -61,6 +61,8 @@ namespace Application.Services
         public async Task<string> GetAccessToken(AuthDTO user_dto)
         {
             User? user = CoreService.Table()
+                .Include(u => u.MainRole).ThenInclude(mr => mr.Role)
+                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .FirstOrDefault(u => u.UserName == user_dto.UserName);
 
             if (user == null) throw new AppRuleException("Wrong username or password");
@@ -91,11 +93,12 @@ namespace Application.Services
             }
                 
 
-            var userRoles = await CoreService.Table<UserRole>()
-                .Include(ur => ur.Role)
-                .Where(ur => ur.UserId == user.Id)
-                .Select(ur => ur.Role)
-                .ToListAsync();
+            var userRoles = user.UserRoles.Select(ur => ur.Role).ToList();
+                //await CoreService.Table<UserRole>()
+                //.Include(ur => ur.Role)
+                //.Where(ur => ur.UserId == user.Id)
+                //.Select(ur => ur.Role)
+                //.ToListAsync();
 
             var token = AuthUcService.CreateToken(user, userRoles);
             log.IsSuccess = true;
