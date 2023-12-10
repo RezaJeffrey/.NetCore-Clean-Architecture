@@ -14,7 +14,7 @@ namespace Domain.DTOs
         public string? LastName { get; set; }
         public string? Password { get; set; }
         public string? PasswordRepeat { get; set; }
-        public string? MainRole { get; set; }
+        public string? MainRoleGcode { get; set; }
         public List<RoleDTO> rolesToRegister { get; set; } = new List<RoleDTO>();
     }
 }

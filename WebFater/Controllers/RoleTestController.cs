@@ -23,6 +23,7 @@ namespace WebFater.Controllers
         }
 
         [HttpGet("getRoles")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Role>>> getRoles()
         {
 

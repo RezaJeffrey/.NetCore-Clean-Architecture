@@ -1,4 +1,5 @@
-﻿using CoreLayer.Services;
+﻿using CoreLayer.Interfaces;
+using CoreLayer.Services;
 using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,26 +17,27 @@ namespace Application.Services
 {
     public class AuthenticationService
     {
-        private readonly CoreService<User, UserDTO> CoreService;
+        private readonly ICoreService<User, UserDTO> CoreService;
         private readonly AuthUcService AuthUcService;
         private readonly AuthUtilService AuthUtilService;
         private readonly TestRoleService RoleService;
         private readonly LoginLogService LoginLogService;
+        private readonly UserRoleService UserRoleService;
         public AuthenticationService(
             AuthUcService authUcService,
-            CoreService<User, UserDTO> coreService,
+            ICoreService<User, UserDTO> coreService,
             AuthUtilService authUtilService,
             TestRoleService roleService,
             LoginLogService loginLogService,
-            UserRoleService UserRoleService
+            UserRoleService userRoleService
             )
         {
             CoreService = coreService;
             AuthUcService = authUcService;
             AuthUtilService = authUtilService;
             RoleService = roleService;
-            LoginLogService = loginLogService;  
-
+            LoginLogService = loginLogService;
+            UserRoleService = userRoleService;
         }
         
         public async Task<string> RefreshToken(string accessToken)
@@ -108,14 +110,22 @@ namespace Application.Services
 
                 if (user_dto.Password != user_dto.PasswordRepeat) throw new AppRuleException("Passwords must match");
 
-                bool userExists = CoreService.Table().FirstOrDefault(user => user.UserName == user_dto.UserName) == null;
+                bool userExists = CoreService.Table().FirstOrDefault(user => user.UserName == user_dto.UserName) != null;
                 if (userExists)
                     throw new AppRuleException(
                             "a user with this username already exists, Consider Login or enter new username"
                         );
 
-                // TODO add user and commit
+                // TODO add user and 
+
                 var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(user_dto);
+
+                var main_role = CoreService.Table<Role>()
+                    .FirstOrDefault(role => role.Gcode.ToString() == user_dto.MainRoleGcode);
+                if (main_role == null)
+                    throw new AppRuleException("Role is not valid");
+
+                RegisterUser.MainRoleId = main_role.Id;
 
                 var hashService = await AuthUtilService.HashPassword(user_dto.Password);
                 RegisterUser.PasswordHash = hashService.hash;
