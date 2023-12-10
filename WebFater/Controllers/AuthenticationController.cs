@@ -23,5 +23,12 @@ namespace WebFater.Controllers
         {
             return await AuthenticationService.Register(user);
         }
+
+        [HttpGet("TestToken")]
+        [Authorize]
+        public async Task<bool> TestToken()
+        {
+            return await AuthenticationService.TestToken();
+        }
     }
 }

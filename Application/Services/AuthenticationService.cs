@@ -3,6 +3,7 @@ using CoreLayer.Services;
 using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -120,6 +121,8 @@ namespace Application.Services
 
                 var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(user_dto);
 
+                if (user_dto.MainRoleGcode.IsNullOrEmpty()) user_dto.MainRoleGcode = "10";
+
                 var main_role = CoreService.Table<Role>()
                     .FirstOrDefault(role => role.Gcode.ToString() == user_dto.MainRoleGcode);
                 if (main_role == null)
@@ -134,12 +137,14 @@ namespace Application.Services
                 await CoreService.Create(RegisterUser, true);
 
                 var createdUser = await CoreService.Table()
+                    .Include(user => user.MainRole)
                     .FirstOrDefaultAsync(
                             user => user.UserName.ToLower() == RegisterUser.UserName.ToLower()
                         );
                 if (createdUser == null) throw new AppRuleException("User Creation Failed"); // TODO test failure
 
                 List<Role> roles = new List<Role>();
+
                 if (user_dto.rolesToRegister.Any())
                 {
                     var roleAvailable = await RoleService.CheckRoleAvailable(user_dto.rolesToRegister.ToList());
@@ -155,9 +160,13 @@ namespace Application.Services
                 }
                 else
                 {
-                    int guestRole = 10; // TODO define guestRole
+                    int guestRole = 10; 
                     roles.Add(await UserRoleService.AddUserRole(createdUser.Id, guestRole));
                 }
+
+                var exists = roles.Where(r => r.Gcode == createdUser.MainRole?.Role.Gcode).Any();
+                if (!exists)
+                    throw new AppRuleException("User MainRole doesn't match selected roles to add");
 
                 await CoreService.CommitAsync();
                 await CoreService.CommitTransaction();
@@ -170,5 +179,16 @@ namespace Application.Services
             }
         }
 
+        public async Task<bool> TestToken()
+        {
+            var token = AuthUtilService.GetUserToken();
+            var clientIp = AuthUtilService.GetClientIp();
+            var userROle = AuthUtilService.GetUserRole();
+            var claims = AuthUtilService.getClaims();
+            var logedInUserID = AuthUtilService.getUserId();
+
+
+            return true;
+        }
     }
 }
