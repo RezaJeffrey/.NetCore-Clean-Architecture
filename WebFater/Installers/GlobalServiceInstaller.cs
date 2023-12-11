@@ -10,7 +10,8 @@ namespace WebFater.Installers
         public static void AddGlobalServices(this IServiceCollection service, IConfiguration configuration)
         {
             
-            service.AddSingleton(typeof(IHttpContextAccessor), typeof(HttpContextAccessor));
+            //service.AddSingleton(typeof(IHttpContextAccessor), typeof(HttpContextAccessor));
+            service.AddHttpContextAccessor();
         }
     }
 }

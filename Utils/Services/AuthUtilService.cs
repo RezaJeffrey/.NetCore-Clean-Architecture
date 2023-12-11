@@ -27,7 +27,7 @@ namespace Utils.Services
             _configuration = configuration;
             HttpContextAccessor = httpContextAccessor;
         }
-        public async Task<(string hash, byte[] salt)> HashPassword(string password, byte[]? salt = null)
+        public async Task<(byte[] hash, byte[] salt)> HashPassword(string password, byte[]? salt = null)
         {
             var passKey = _configuration.GetSection("AppSettings:PasswordHashKey");
             var generatedSalt = (salt == null) ? GenerateSalt() : salt;
@@ -44,8 +44,8 @@ namespace Utils.Services
                 numBytesRequested: 256 / 8
                 );
             });
-
-            return (Convert.ToBase64String(hash), generatedSalt);
+            
+            return (hash, generatedSalt);
 
         }
         public byte[] GenerateSalt()
@@ -83,16 +83,20 @@ namespace Utils.Services
             return handler.WriteToken(token);
         }
 
-        public async Task<bool> ValidatePassword(string password, byte[] salt, string hash)
+        public async Task<bool> ValidatePassword(string? password, byte[]? salt, byte[]? hash)
         {
+            if (string.IsNullOrEmpty(password) || salt.IsNullOrEmpty() || hash.IsNullOrEmpty())
+                throw new AppRuleException("Null Value while validating password");
+
             var passwordHash = await HashPassword(password, salt);
-            return hash == passwordHash.hash;
+            return Convert.ToBase64String(hash).Equals(Convert.ToBase64String(passwordHash.hash));
         }
 
-        public IEnumerable<Claim> getClaims()
+        public IEnumerable<Claim> getClaims(string? AccessToken = null)
         {
             var securityTokenHandler = new JwtSecurityTokenHandler();
-            var accessToken = GetUserToken();
+            var accessToken = (AccessToken) ?? GetUserToken();
+
             if(securityTokenHandler.CanReadToken(accessToken))
             {
                 var descriptedToken = securityTokenHandler.ReadJwtToken(accessToken);
@@ -124,6 +128,11 @@ namespace Utils.Services
         public string? GetUserRole()
         {
             return getClaims().Where(claim => claim.Type == "MainRole").FirstOrDefault()?.Value;
+        }
+
+        public string? GetClientIp()
+        {
+            return HttpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
         }
     }
 }

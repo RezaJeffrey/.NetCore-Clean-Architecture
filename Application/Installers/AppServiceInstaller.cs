@@ -14,6 +14,9 @@ namespace Application.Installers
         {
 
             service.AddTransient<TestRoleService, TestRoleService>();
+            service.AddTransient<AuthenticationService, AuthenticationService>();
+            service.AddTransient<LoginLogService, LoginLogService>();
+            service.AddTransient<UserRoleService, UserRoleService>();
         }
     }
 }

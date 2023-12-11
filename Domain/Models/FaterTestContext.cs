@@ -15,6 +15,8 @@ public partial class FaterTestContext : DbContext
     {
     }
 
+    public virtual DbSet<LogLogin> LogLogins { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<RoleParent> RoleParents { get; set; }
@@ -29,6 +31,27 @@ public partial class FaterTestContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<LogLogin>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_LogLogin_1");
+
+            entity.ToTable("LogLogin");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.CreateUserId).HasColumnName("CreateUserID");
+            entity.Property(e => e.DeleteUserId).HasColumnName("DeleteUserID");
+            entity.Property(e => e.IpAddress)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifyUserId).HasColumnName("ModifyUserID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.User).WithMany(p => p.LogLogins)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogLogin_Users");
+        });
+
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC2741A8A9D6");

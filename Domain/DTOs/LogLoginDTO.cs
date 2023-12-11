@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Domain.DTOs
 {
-    public class RoleDTO
+    public class LogLoginDTO
     {
-        public string? Name { get; set; }
+        public string? IpAddress { get; set; }
 
-        public int Gcode { get; set; }
+        public long? ExpDate { get; set; }
 
-        public string? Description { get; set; }
+        public bool? IsSuccess { get; set; }
     }
 }
