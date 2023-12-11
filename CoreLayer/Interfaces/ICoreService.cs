@@ -3,7 +3,7 @@ using Utils.Models;
 
 namespace CoreLayer.Interfaces
 {
-    public interface ICoreService<T, TDTO> where T : BaseModel where TDTO : class
+    public interface ICoreService<T, TDTO> where T : class where TDTO : class
     {
         public IQueryable<T> Table();
 

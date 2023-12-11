@@ -10,7 +10,7 @@ using Utils.Services;
 
 namespace CoreLayer.Services
 {
-    public class CoreService<T, TDTO> : ICoreService<T, TDTO> where T : BaseModel where TDTO : class 
+    public class CoreService<T, TDTO> : ICoreService<T, TDTO> where T : class where TDTO : class 
     {
         private DbContext db { get;}
         private DbSet<T> dbTable { get;}
@@ -120,10 +120,9 @@ namespace CoreLayer.Services
         {
             try
             {
-                T? Entity = await FindByIdAsync(InputEntity.Id);
+                T? Entity = await FindByIdAsync(CoreExpression<T>.GetEntityIdValue(InputEntity));
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
-                /* TODO After implementation of AuthService, Set Current UserName and UserID */  
                 PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("DeleteDate");
                 PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DeleteUserId");
 
@@ -140,7 +139,11 @@ namespace CoreLayer.Services
                 #endregion
 
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
-                PI_DuserId.SetValue(Entity, (long?)1, null); // TODO get User Id
+                PI_DuserId.SetValue(
+                        Entity,
+                        AuthUtilService.getUserId(),
+                        null
+                    ); 
 
 
                 dbTable.Update(Entity);
