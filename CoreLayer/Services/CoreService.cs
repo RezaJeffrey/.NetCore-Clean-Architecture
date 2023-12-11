@@ -1,23 +1,25 @@
 ﻿using AutoMapper.Execution;
 using CoreLayer.Interfaces;
-using Domain.ModelMetadata;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
 using Utils.Models;
+using Utils.Expressions;
+using Utils.Services;
 
 namespace CoreLayer.Services
 {
-    public class CoreService<T, TDTO> : ICoreService<T, TDTO> where T : BaseModel where TDTO : class 
+    public class CoreService<T, TDTO> : ICoreService<T, TDTO> where T : class where TDTO : class 
     {
         private DbContext db { get;}
         private DbSet<T> dbTable { get;}
+        private readonly AuthUtilService AuthUtilService;
 
-        public CoreService(DbContext dbContext)
+        public CoreService(DbContext dbContext, AuthUtilService authUtilService)
         {
             db = dbContext;
             dbTable = db.Set<T>();
-            
+            AuthUtilService = authUtilService;
         }
 
 
@@ -26,7 +28,7 @@ namespace CoreLayer.Services
             return dbTable;
         }
 
-        public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel
+        public IQueryable<TEntity> Table<TEntity>() where TEntity : class
         {
             return db.Set<TEntity>();
         }
@@ -36,21 +38,20 @@ namespace CoreLayer.Services
             return dbTable.IgnoreQueryFilters();
         }
 
-        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : BaseModel
+        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : class
         {
             return db.Set<TEntity>().IgnoreQueryFilters();
         }
 
         public async Task<T?> FindByIdAsync(long id)
         {
-            return await Table().FirstOrDefaultAsync(Entity => Entity.Id == id);
+            return await Table().FirstOrDefaultAsync(CoreExpression<T>.EntityFindByIdExpression(id));
         }
 
         public async Task Create(T T, bool save = true)
         {
             try
-            {
-                // TODO After implementation of AuthService, Set Current UserName and UserID   
+            { 
                 PropertyInfo? PI_Cdate = T.GetType().GetProperty("CreateDate");
                 PropertyInfo? PI_CuserId = T.GetType().GetProperty("CreateUserId");
 
@@ -65,7 +66,11 @@ namespace CoreLayer.Services
                 }
 
                 PI_Cdate.SetValue(T, DateTime.Now.Ticks, null);
-                PI_CuserId.SetValue(T, (long?)1, null); // TODO get user ID
+                PI_CuserId.SetValue(
+                        T,
+                        AuthUtilService.getUserId(),
+                        null
+                    );
 
 
                 await db.AddAsync(T);
@@ -84,8 +89,7 @@ namespace CoreLayer.Services
             {
                 T? Entity = await FindByIdAsync(id);
                 if (Entity == null) throw new Exception("No such Item in DataBase");
-
-                // TODO After implementation of AuthService, Set Current UserName and UserID   
+ 
                 PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("DeleteDate");
                 PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DeleteUserId");
 
@@ -100,7 +104,11 @@ namespace CoreLayer.Services
                 }
 
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
-                PI_DuserId.SetValue(Entity, (long?)1, null); // TODO Get User Id
+                PI_DuserId.SetValue(
+                        Entity, 
+                        AuthUtilService.getUserId(),
+                        null
+                    );
 
 
                 dbTable.Update(Entity);
@@ -117,10 +125,9 @@ namespace CoreLayer.Services
         {
             try
             {
-                T? Entity = await FindByIdAsync(InputEntity.Id);
+                T? Entity = await FindByIdAsync(CoreExpression<T>.GetEntityIdValue(InputEntity));
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
-                /* TODO After implementation of AuthService, Set Current UserName and UserID */  
                 PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("DeleteDate");
                 PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DeleteUserId");
 
@@ -137,7 +144,11 @@ namespace CoreLayer.Services
                 #endregion
 
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
-                PI_DuserId.SetValue(Entity, (long?)1, null); // TODO get User Id
+                PI_DuserId.SetValue(
+                        Entity,
+                        AuthUtilService.getUserId(),
+                        null
+                    ); 
 
 
                 dbTable.Update(Entity);
@@ -154,10 +165,9 @@ namespace CoreLayer.Services
         {
             try
             {
-                T? Entity = await FindByIdAsync(InputEntity.Id);
+                T? Entity = await FindByIdAsync(CoreExpression<T>.GetEntityIdValue(InputEntity));
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
-                /* TODO After implementation of AuthService, Set Current UserName and UserID */
                 PropertyInfo? PI_Mdate = InputEntity.GetType().GetProperty("ModifyDate");
                 PropertyInfo? PI_MuserId = InputEntity.GetType().GetProperty("ModifyUserId");
 
@@ -174,7 +184,12 @@ namespace CoreLayer.Services
                 #endregion
 
                 PI_Mdate.SetValue(InputEntity, DateTime.Now.Ticks, null);
-                PI_MuserId.SetValue(InputEntity, (long?)1, null); // TODO get User Id
+                PI_MuserId.SetValue
+                    (
+                        InputEntity,
+                        AuthUtilService.getUserId(),
+                        null
+                    ); 
 
 
                 dbTable.Update(InputEntity);
@@ -187,15 +202,18 @@ namespace CoreLayer.Services
 
         }
 
-        public async Task<GridData<T>> ToPaging(int pageNumber, int pageSize, string? orderType)  // TODO test ToPagin + implement ToPaging by orderfield
+        public async Task<GridData<T>> ToPaging(int pageNumber = 1, int pageSize = int.MaxValue, string? orderType = null)  // TODO test ToPagin + implement ToPaging by orderfield
         {
             var gridData = new GridData<T>();
             var data = await Table().Skip(pageNumber - 1).Take(pageSize).ToListAsync();
+            var IdExp = CoreExpression<T>.EntityIdExpression().Compile();
 
             gridData.Data = (orderType?.ToLower() == "desc") 
-                ? data.OrderByDescending(Entity => Entity.Id).ToList() 
-                : data.OrderBy(Entity => Entity.Id).ToList();
+                ? data.OrderByDescending(IdExp).ToList() 
+                : data.OrderBy(IdExp).ToList();
 
+            gridData.pageSize = pageSize;
+            gridData.pageNumber = pageNumber;
 
             return gridData;
         }
@@ -220,12 +238,5 @@ namespace CoreLayer.Services
             await db.Database.RollbackTransactionAsync();
         }
 
-        /*
-         TODO
-
-         Add DTO convert mapping
-         
-
-        */
     }
 }

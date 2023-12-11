@@ -31,11 +31,5 @@ namespace WebFater.Controllers
             return await AuthenticationService.GetAccessToken(user);
         }
 
-        [HttpGet("TestToken")]
-        [Authorize]
-        public async Task<bool> TestToken()
-        {
-            return await AuthenticationService.TestToken();
-        }
     }
 }

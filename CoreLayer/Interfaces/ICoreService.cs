@@ -1,17 +1,16 @@
-﻿using Domain.ModelMetadata;
-using Utils.Models;
+﻿using Utils.Models;
 
 namespace CoreLayer.Interfaces
 {
-    public interface ICoreService<T, TDTO> where T : BaseModel where TDTO : class
+    public interface ICoreService<T, TDTO> where T : class where TDTO : class
     {
         public IQueryable<T> Table();
 
-        public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel;
+        public IQueryable<TEntity> Table<TEntity>() where TEntity : class;
 
         public IQueryable<T> TableAll();
 
-        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : BaseModel;
+        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : class;
 
         public Task<T?> FindByIdAsync(long id);
 

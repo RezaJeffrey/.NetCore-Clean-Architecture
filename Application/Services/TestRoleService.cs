@@ -31,7 +31,7 @@ namespace Application.Services
         public async Task<RoleDTO> GetRoleTest(long Id)
         {
             var role = await CoreService.FindByIdAsync(Id);
-            if (role == null) throw new AppRuleException("no such Item in database or you don't have sufficient permissions");
+            if (role == null) throw new BusinessException("no such Item in database or you don't have sufficient permissions");
 
             return ObjectMapper.MapObject<Role, RoleDTO>(role);
         }
@@ -58,7 +58,7 @@ namespace Application.Services
                 .Where(i => i.Name == input.Name || i.Gcode == input.Gcode)
                 .FirstOrDefaultAsync();
 
-            if (deleted == null) throw new AppRuleException("Item does not exist in DataBase or you don't have sufficient permissions");
+            if (deleted == null) throw new BusinessException("Item does not exist in DataBase or you don't have sufficient permissions");
 
             await CoreService.Delete(deleted.Id, false);
             await CoreService.CommitAsync();
@@ -79,8 +79,8 @@ namespace Application.Services
                 .FirstOrDefault(r => r.Gcode == int.Parse(requiredRole));
 
             #region check null values
-            if (required_role == null) throw new AppRuleException("policy not correct!");
-            if (userdb == null) throw new AppRuleException("user not found!");
+            if (required_role == null) throw new BusinessException("policy not correct!");
+            if (userdb == null) throw new BusinessException("user not found!");
             #endregion
 
             return userdb.UserRoles.Any(ur =>
@@ -109,7 +109,7 @@ namespace Application.Services
             foreach (int? role in roles.Select(r => r.Gcode))
             {
                 if (role != null && !db_roles.Contains((int)role) )
-                    throw new AppRuleException("role doesn't exist in database");
+                    throw new BusinessException("role doesn't exist in database");
             }
             return true;
         }

@@ -33,6 +33,7 @@ namespace WebFater.Controllers
         }
 
         [HttpGet("GetRoleById")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Role>>> GetRole(long Id)
         {
 
@@ -82,24 +83,6 @@ namespace WebFater.Controllers
         {
             string requiredRole = "2";
             var check = _roleService.CheckHandler(requiredRole);
-        }
-
-        [HttpGet("GetToken")]
-        [AllowAnonymous]
-        public void GetAccessToken()
-        {
-            User? userdb = _roleService.CoreService.Table<User>()
-                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
-                .FirstOrDefault(user => user.Id == 1);
-            
-            var userRoles = userdb?.UserRoles
-                .Where(ur => ur.DeleteDate == 0 || ur.DeleteDate == null)
-                .Select(ur => ur.Role)
-                .Where(r => r.DeleteDate == null || r.DeleteDate == 0)
-                .ToList();
-            if (userRoles == null) throw new AppRuleException();
-            if (userdb == null) throw new AppRuleException();
-            //TODO  return _authenticateService.GetAccessToken(userdb, userRoles) + GetRefreshToken()
         }
 
         [HttpGet("CheckQueryFilter")]
