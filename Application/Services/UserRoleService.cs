@@ -25,11 +25,11 @@ namespace Application.Services
         public async Task<Role> AddUserRole(long userId, int roleGcode, bool save = true)
         {
             User? user = CoreService.Table<User>().Where(user => user.Id == userId).FirstOrDefault();
-            if (user == null) { throw new AppRuleException("User not found"); }
+            if (user == null) { throw new BusinessException("User not found"); }
 
             Role? role = await CoreService.Table<Role>()
                 .FirstOrDefaultAsync(role => role.Gcode == roleGcode);
-            if(role == null) { throw new AppRuleException("Role not valid"); }
+            if(role == null) { throw new BusinessException("Role not valid"); }
 
             UserRole userRole = new UserRole();
             userRole.UserId = userId;
@@ -43,13 +43,13 @@ namespace Application.Services
         public async Task<List<Role>> AddUserRole(long userId, List<int> roleGcodes, bool save = true)
         {
             User? user = CoreService.Table<User>().Where(user => user.Id == userId).FirstOrDefault();
-            if (user == null) { throw new AppRuleException("User not found"); }
+            if (user == null) { throw new BusinessException("User not found"); }
 
             var roles = await CoreService.Table<Role>()
                 .Where(role => roleGcodes.Contains(role.Gcode))
                 .ToListAsync();
 
-            if (!roles.Any()) throw new AppRuleException("role not valid");
+            if (!roles.Any()) throw new BusinessException("role not valid");
 
             foreach(var role in roles)
             {

@@ -35,10 +35,10 @@ namespace CoreLayer.Services
         { 
             var userClaims = AuthUtilService.getClaims();
             var userId = AuthUtilService.getUserId();
-            if (userId == null) throw new AppRuleException("Token Not Valid, missing claim: UserId");
+            if (userId == null) throw new BusinessException("Token Not Valid, missing claim: UserId");
 
             User? User = await CoreService.FindByIdAsync((long)userId);
-            if (User == null) throw new AppRuleException("user doesn't exist");
+            if (User == null) throw new BusinessException("user doesn't exist");
 
             var UserRoles  = CoreService.Table<UserRole>()
                 .Include(ur => ur.Role)
@@ -62,7 +62,7 @@ namespace CoreLayer.Services
                 .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
                 .FirstOrDefaultAsync(u => u.Id == UserId);
 
-            if (user == null) throw new AppRuleException("User doesn't exist");
+            if (user == null) throw new BusinessException("User doesn't exist");
 
             var roles = user.UserRoles
                 .Select(ur => ur.Role)
@@ -86,7 +86,7 @@ namespace CoreLayer.Services
                 claims.Add(new Claim("MainRole", mainRole, "Role"));
             }
 
-            if (!roles.Any()) throw new AppRuleException("User has no roles, account might not be accepted. Please Wait.");
+            if (!roles.Any()) throw new BusinessException("User has no roles, account might not be accepted. Please Wait.");
             foreach (var role in roles)
             {
                 claims.Add(

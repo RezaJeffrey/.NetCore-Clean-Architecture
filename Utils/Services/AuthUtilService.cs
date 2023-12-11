@@ -86,7 +86,7 @@ namespace Utils.Services
         public async Task<bool> ValidatePassword(string? password, byte[]? salt, byte[]? hash)
         {
             if (string.IsNullOrEmpty(password) || salt.IsNullOrEmpty() || hash.IsNullOrEmpty())
-                throw new AppRuleException("Null Value while validating password");
+                throw new BusinessException("Null Value while validating password");
 
             var passwordHash = await HashPassword(password, salt);
             return Convert.ToBase64String(hash).Equals(Convert.ToBase64String(passwordHash.hash));

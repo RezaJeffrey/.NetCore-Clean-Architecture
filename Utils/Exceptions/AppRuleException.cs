@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Utils.Exceptions
 {
-    public class AppRuleException : Exception
+    public class BusinessException : Exception
     {
         public int StatusCode { get; set; } = (int)HttpStatusCode.BadRequest;
         #region Constructor
-        public AppRuleException() : base("application rule violation error") { }
-        public AppRuleException(string message) : base(message) { }
-        public AppRuleException(string message, int code) : base(message)
+        public BusinessException() : base("application rule violation error") { }
+        public BusinessException(string message) : base(message) { }
+        public BusinessException(string message, int code) : base(message)
         {
             StatusCode = code;
         }

@@ -30,14 +30,14 @@ namespace WebFater.Middlewares
             var response = GenerateResponse(exception);
             context.Response.StatusCode = response.StatusCode;
 
-            // TODO : LogError if it's not appRuleException
+            // TODO : LogError if it's not BusinessException
             await context.Response.WriteAsync(response.json);
         }
 
         private static (int StatusCode, string json) GenerateResponse(Exception exception)
             => exception switch
             {
-                AppRuleException appException => (
+                BusinessException appException => (
                     appException.StatusCode,
                     JsonConvert.SerializeObject(new { errorMessage = appException.Message })
                 ),

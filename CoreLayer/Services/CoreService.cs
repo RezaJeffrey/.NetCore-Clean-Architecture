@@ -51,8 +51,7 @@ namespace CoreLayer.Services
         public async Task Create(T T, bool save = true)
         {
             try
-            {
-                // TODO After implementation of AuthService, Set Current UserName and UserID   
+            { 
                 PropertyInfo? PI_Cdate = T.GetType().GetProperty("CreateDate");
                 PropertyInfo? PI_CuserId = T.GetType().GetProperty("CreateUserId");
 
@@ -90,8 +89,7 @@ namespace CoreLayer.Services
             {
                 T? Entity = await FindByIdAsync(id);
                 if (Entity == null) throw new Exception("No such Item in DataBase");
-
-                // TODO After implementation of AuthService, Set Current UserName and UserID   
+ 
                 PropertyInfo? PI_Ddate = Entity.GetType().GetProperty("DeleteDate");
                 PropertyInfo? PI_DuserId = Entity.GetType().GetProperty("DeleteUserId");
 
@@ -106,7 +104,11 @@ namespace CoreLayer.Services
                 }
 
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
-                PI_DuserId.SetValue(Entity, (long?)1, null); // TODO Get User Id
+                PI_DuserId.SetValue(
+                        Entity, 
+                        AuthUtilService.getUserId(),
+                        null
+                    );
 
 
                 dbTable.Update(Entity);
@@ -166,7 +168,6 @@ namespace CoreLayer.Services
                 T? Entity = await FindByIdAsync(CoreExpression<T>.GetEntityIdValue(InputEntity));
                 if (Entity == null) throw new Exception("No such Item in DataBase");
 
-                /* TODO After implementation of AuthService, Set Current UserName and UserID */
                 PropertyInfo? PI_Mdate = InputEntity.GetType().GetProperty("ModifyDate");
                 PropertyInfo? PI_MuserId = InputEntity.GetType().GetProperty("ModifyUserId");
 
@@ -237,12 +238,5 @@ namespace CoreLayer.Services
             await db.Database.RollbackTransactionAsync();
         }
 
-        /*
-         TODO
-
-         Add DTO convert mapping
-         
-
-        */
     }
 }

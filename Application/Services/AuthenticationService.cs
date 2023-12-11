@@ -49,7 +49,7 @@ namespace Application.Services
             User? user = await CoreService.FindByIdAsync(userId);
 
             if (user == null)
-                throw new AppRuleException("User Not Found!");
+                throw new BusinessException("User Not Found!");
 
             var userRoles = CoreService.Table<UserRole>()
                 .Include(ur => ur.Role)
@@ -70,16 +70,15 @@ namespace Application.Services
                 .FirstOrDefault(u => u.UserName == user_dto.UserName);
 
             if (user == null)
-                throw new AppRuleException("Wrong username or password");
+                throw new BusinessException("Wrong username or password");
 
 
-            // TODO log login attempts
             var Now = DateTime.Now.Ticks;
             var logs = CoreService.Table<LogLogin>()
                 .Where(l => l.UserId == user.Id && l.ExpDate > Now && !l.IsSuccess);
 
             if (logs.Count() > 5) 
-                throw new AppRuleException(
+                throw new BusinessException(
                         "Account has been limited due to 5 failed login attempts. Please try again later or inform us."
                     );
 
@@ -100,7 +99,7 @@ namespace Application.Services
                 log.IsSuccess = false;
                 await LoginLogService.CoreService.Create(log);
 
-                throw new AppRuleException("Wrong username or password");
+                throw new BusinessException("Wrong username or password");
             }
                 
 
@@ -119,13 +118,13 @@ namespace Application.Services
                 await CoreService.BeginTransaction();
 
                 if (user_dto.Password != user_dto.PasswordRepeat)
-                    throw new AppRuleException("Passwords must match");
+                    throw new BusinessException("Passwords must match");
 
                 bool userExists = CoreService.Table()
                     .FirstOrDefault(user => user.UserName == user_dto.UserName) != null;
 
                 if (userExists)
-                    throw new AppRuleException(
+                    throw new BusinessException(
                             "a user with this username already exists, Consider Login or enter new username"
                         );
 
@@ -138,7 +137,7 @@ namespace Application.Services
                     .FirstOrDefault(role => role.Gcode.ToString() == user_dto.MainRoleGcode);
                 
                 if (main_role == null)
-                    throw new AppRuleException("Role is not valid");
+                    throw new BusinessException("Role is not valid");
 
                 RegisterUser.MainRoleId = main_role.Id;
 
@@ -154,7 +153,7 @@ namespace Application.Services
                             user => user.UserName.ToLower() == RegisterUser.UserName.ToLower()
                         );
                 
-                if (createdUser == null) throw new AppRuleException("User Creation Failed"); // TODO test failure
+                if (createdUser == null) throw new BusinessException("User Creation Failed"); 
 
                 List<Role> roles = new List<Role>();
 
@@ -163,7 +162,7 @@ namespace Application.Services
                     var roleAvailable = await RoleService.CheckRoleAvailable(user_dto.rolesToRegister.ToList());
                     
                     if (!roleAvailable)
-                        throw new AppRuleException("Input role not valid");
+                        throw new BusinessException("Input role not valid");
 
                     var roles_to_add = user_dto.rolesToRegister
                         .Where(r => r != null)
@@ -181,7 +180,7 @@ namespace Application.Services
                 var exists = roles.Where(r => r.Gcode == createdUser.MainRole?.Role.Gcode).Any();
                 
                 if (!exists)
-                    throw new AppRuleException("User MainRole doesn't match selected roles to add");
+                    throw new BusinessException("User MainRole doesn't match selected roles to add");
 
                 await CoreService.CommitAsync();
                 await CoreService.CommitTransaction();
