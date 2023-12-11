@@ -1,5 +1,4 @@
-﻿using Domain.ModelMetadata;
-using Utils.Models;
+﻿using Utils.Models;
 
 namespace CoreLayer.Interfaces
 {
@@ -7,11 +6,11 @@ namespace CoreLayer.Interfaces
     {
         public IQueryable<T> Table();
 
-        public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel;
+        public IQueryable<TEntity> Table<TEntity>() where TEntity : class;
 
         public IQueryable<T> TableAll();
 
-        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : BaseModel;
+        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : class;
 
         public Task<T?> FindByIdAsync(long id);
 

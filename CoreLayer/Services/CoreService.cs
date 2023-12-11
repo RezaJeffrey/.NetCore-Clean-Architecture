@@ -1,6 +1,5 @@
 ﻿using AutoMapper.Execution;
 using CoreLayer.Interfaces;
-using Domain.ModelMetadata;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -29,7 +28,7 @@ namespace CoreLayer.Services
             return dbTable;
         }
 
-        public IQueryable<TEntity> Table<TEntity>() where TEntity : BaseModel
+        public IQueryable<TEntity> Table<TEntity>() where TEntity : class
         {
             return db.Set<TEntity>();
         }
@@ -39,7 +38,7 @@ namespace CoreLayer.Services
             return dbTable.IgnoreQueryFilters();
         }
 
-        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : BaseModel
+        public IQueryable<TEntity> TableAll<TEntity>() where TEntity : class
         {
             return db.Set<TEntity>().IgnoreQueryFilters();
         }
