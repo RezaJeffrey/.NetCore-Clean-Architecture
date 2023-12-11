@@ -4,6 +4,7 @@ using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,5 +64,19 @@ namespace Application.Services
             if (save) { await CoreService.CommitAsync(); }
             return roles;
         }
+        
+        public async Task<UserRole> GetUserRole(long userId, long roleId)
+        {
+            var userRole = await CoreService.Table()
+                .Include(ur => ur.Role)
+                .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+
+            if (userRole == null)
+                throw new BusinessException("Operation Failure");
+
+            return userRole;
+        }
+
+
     }
 }

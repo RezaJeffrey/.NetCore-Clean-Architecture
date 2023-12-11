@@ -139,8 +139,6 @@ namespace Application.Services
                 if (main_role == null)
                     throw new BusinessException("Role is not valid");
 
-                RegisterUser.MainRoleId = main_role.Id;
-
                 var hashService = await AuthUtilService.HashPassword(user_dto.Password);
                 RegisterUser.PasswordHash = hashService.hash;
                 RegisterUser.PasswordSalt = hashService.salt;
@@ -148,12 +146,11 @@ namespace Application.Services
                 await CoreService.Create(RegisterUser, true);
 
                 var createdUser = await CoreService.Table()
-                    .Include(user => user.MainRole)
                     .FirstOrDefaultAsync(
                             user => user.UserName.ToLower() == RegisterUser.UserName.ToLower()
                         );
                 
-                if (createdUser == null) throw new BusinessException("User Creation Failed"); 
+                if (createdUser == null) throw new BusinessException("User Creation Failed");
 
                 List<Role> roles = new List<Role>();
 
@@ -173,9 +170,12 @@ namespace Application.Services
                 }
                 else
                 {
-                    int guestRole = 10; 
+                    int guestRole = 10;
                     roles.Add(await UserRoleService.AddUserRole(createdUser.Id, guestRole));
                 }
+
+                createdUser.MainRole = await UserRoleService.GetUserRole(createdUser.Id, main_role.Id);
+                await CoreService.Update(createdUser, true);
 
                 var exists = roles.Where(r => r.Gcode == createdUser.MainRole?.Role.Gcode).Any();
                 

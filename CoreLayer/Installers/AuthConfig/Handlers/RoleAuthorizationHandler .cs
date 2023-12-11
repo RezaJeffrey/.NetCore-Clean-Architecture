@@ -41,11 +41,6 @@ namespace CoreLayer.Installers.AuthConfig.Handlers
         {
             var userId = AuthUtilService.getUserId();
 
-            //var userdb = CoreService.Table<User>()
-            //    .Include(u =>u.UserRoles)
-            //    .ThenInclude(ur => ur.Role)
-            //    .FirstOrDefault(u => u.Id == userId); 
-
             var user_roles = AuthUtilService.getRoleClaims();
 
             var required_role = CoreService.Table()
@@ -60,12 +55,8 @@ namespace CoreLayer.Installers.AuthConfig.Handlers
 
             return user_roles.Any(r =>
                     r.Value == required_role.Gcode.ToString()
-                    || required_role.RoleParentRoles.Any(p => p.Role?.Gcode.ToString() == r.Value)
+                    || required_role.RoleParentRoles.Any(p => p.Parent?.Gcode.ToString() == r.Value)
                 );
-            //return userdb.UserRoles.Any(ur =>
-            //        ur.Role.Gcode == required_role.Gcode
-            //     || required_role.RoleParentRoles.Any(p => p.Role?.Gcode == ur.Role.Gcode)
-            //    );
         }
     }
 
