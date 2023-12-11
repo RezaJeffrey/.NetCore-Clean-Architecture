@@ -38,5 +38,18 @@ namespace Utils.Expressions
             return expression;
         }
 
+        public static long GetEntityIdValue(T Entity)
+        {
+            if (typeof(T).GetProperty("Id")?.PropertyType != typeof(long))
+                throw new InvalidOperationException("The property 'Id' must be of type long.");
+
+            var result = (long?)typeof(T).GetProperty("Id")?.GetValue(Entity);
+
+            if (result == null)
+                throw new InvalidOperationException("property value can't be null");
+
+            return (long)result;
+        }
+
     }
 }

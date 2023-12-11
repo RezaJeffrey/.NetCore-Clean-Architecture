@@ -33,6 +33,7 @@ namespace WebFater.Controllers
         }
 
         [HttpGet("GetRoleById")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Role>>> GetRole(long Id)
         {
 
