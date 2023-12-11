@@ -68,7 +68,11 @@ namespace CoreLayer.Services
                 }
 
                 PI_Cdate.SetValue(T, DateTime.Now.Ticks, null);
-                PI_CuserId.SetValue(T, (long?)1, null); // TODO get user ID
+                PI_CuserId.SetValue(
+                        T,
+                        AuthUtilService.getUserId(),
+                        null
+                    );
 
 
                 await db.AddAsync(T);
