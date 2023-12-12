@@ -192,27 +192,31 @@ namespace Application.Services
                 throw;
             }
         }
-        public async Task CreateUser(AuthDTO user_dto)
+        public async Task CreateUser(AuthDTO userDTO)
         {
-            if (user_dto.Password != user_dto.PasswordRepeat)
-                throw new BusinessException("Passwords must match");
+
+            if (userDTO.Password.IsNullOrEmpty())
+                throw new BusinessException("Invalid input.");
+
+            if (userDTO.Password != userDTO.PasswordRepeat)
+                throw new BusinessException("Passwords must match.");
 
             bool userExists = CoreService.Table()
-                .FirstOrDefault(user => user.UserName == user_dto.UserName) != null;
+                .FirstOrDefault(user => user.UserName == userDTO.UserName) != null;
 
             if (userExists)
                 throw new BusinessException(
-                        "a user with this username already exists, Consider Login or enter new username"
+                        "a user with this username already exists, Consider Login or enter new username."
                     );
 
+            var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(userDTO);
 
-            var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(user_dto);
-
-            var hashService = await AuthUtilService.HashPassword(user_dto.Password);
+            var hashService = await AuthUtilService.HashPassword(userDTO.Password);
             RegisterUser.PasswordHash = hashService.hash;
             RegisterUser.PasswordSalt = hashService.salt;
 
             await CoreService.Create(RegisterUser);
+
         }
 
         public async Task<User?> GetUserByUsername(string username) // TODO add username index in DB
@@ -227,7 +231,6 @@ namespace Application.Services
         {
             try
             {
-                await CoreService.BeginTransaction();
 
                 await CreateUser(userDTO);
                 var created_user = await GetUserByUsername(userDTO.UserName);
@@ -235,24 +238,21 @@ namespace Application.Services
                 if (created_user == null)
                     throw new BusinessException("User Creation Failed");
 
-                // create Default role Guest (10)
-                int guestRole = 10;
+                #region Add Default Guest UserRole
+                int guest_role = 10;
 
-                var guest_role = CoreService.Table<Role>()
-                    .FirstOrDefault(role => role.Gcode == guestRole);
+                var guestRole = CoreService.Table<Role>()
+                    .FirstOrDefault(role => role.Gcode == guest_role);
 
-                if (guest_role == null)
+                if (guestRole == null)
                     throw new BusinessException("Role is not valid");
 
-                await UserRoleService.AddUserRole(created_user.Id, guest_role.Gcode);
+                await UserRoleService.AddUserRole(created_user.Id, guestRole.Gcode, isMain: true, save: false);
 
-                var MainUserRole = await UserRoleService.GetUserRole(created_user.Id, guest_role.Id);
-                created_user.MainRole = MainUserRole;
-                CoreService.GetDb().Update(created_user);
+                #endregion
 
                 await CoreService.CommitAsync();
                 await CoreService.CommitTransaction();
-
 
                 var token = await GetAccessToken(userDTO);
                 return token;
