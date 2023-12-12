@@ -17,11 +17,20 @@ namespace WebFater.Controllers
             AuthenticationService = authService;
         }
 
-        [HttpPost("SignUp")]
+        [HttpPost("SignUpUser")]
         [AllowAnonymous]
         public async Task<string> Register(AuthDTO user)
         {
-            return await AuthenticationService.Register(user);
+            await AuthenticationService.UserSignUp(user);
+            return await AuthenticationService.GetAccessToken(user);
+        }
+
+        [HttpPost("SignUpAdmin")]
+        [AllowAnonymous]
+        public async Task<string> AdminRegister(AuthDTO user)
+        {
+            await AuthenticationService.RegisterUser(user);
+            return await AuthenticationService.GetAccessToken(user);
         }
         
         [HttpPost("Login")]

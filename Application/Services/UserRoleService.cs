@@ -74,7 +74,7 @@ namespace Application.Services
             }
 
             if (!mainExistsInput && mainRoleCode != 0)
-                throw new BusinessException("");
+                throw new BusinessException("Main role does not exist in sent roles.");
 
             if (save) { await CoreService.CommitAsync(); }
             return roles;

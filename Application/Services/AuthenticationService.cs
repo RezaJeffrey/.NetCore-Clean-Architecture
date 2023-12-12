@@ -150,6 +150,8 @@ namespace Application.Services
         {
             try
             {
+                await CoreService.BeginTransaction();
+
                 await CreateUser(userDTO);
                 var created_user = await GetUserByUsername(userDTO.UserName);
 
