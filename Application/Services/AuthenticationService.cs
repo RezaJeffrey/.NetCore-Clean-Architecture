@@ -47,16 +47,16 @@ namespace Application.Services
             var deserialized_token = AuthUtilService.getClaims(accessToken);
 
             long userId = long.Parse(deserialized_token.GetClaim("UserId").Value);
-            User? user = await CoreService.FindByIdAsync(userId);
 
+            User? user = await CoreService.Table()
+                .Include(user => user.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(user => user.Id == userId);
+            
             if (user == null)
                 throw new BusinessException("User Not Found!");
 
-            var userRoles = CoreService.Table<UserRole>()
-                .Include(ur => ur.Role)
-                .Where(ur => ur.UserId == userId)
-                .Select(ur => ur.Role)
-                .ToList();
+            var userRoles = user.UserRoles.Select(ur => ur.Role).ToList();
 
             return AuthUcService.CreateToken(user, userRoles);
         }
@@ -64,8 +64,6 @@ namespace Application.Services
         public async Task<string> GetAccessToken(AuthDTO user_dto)
         {
             User? user = CoreService.Table()
-                .Include(u => u.MainRole)
-                    .ThenInclude(mr => mr.Role)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
                 .FirstOrDefault(u => u.UserName == user_dto.UserName);

@@ -80,13 +80,16 @@ namespace CoreLayer.Services
                 new Claim("UserName", user.UserName, "Identity"),
             };
 
-            string? mainRole = user.MainRole?.Role.Gcode.ToString();
-            if (mainRole != null)
-            {
-                claims.Add(new Claim("MainRole", mainRole, "Role"));
-            }
+            var mainRole = user.UserRoles
+                .FirstOrDefault(user => user.IsMainRole)?
+                    .Role.Gcode.ToString() ?? string.Empty;
 
-            if (!roles.Any()) throw new BusinessException("User has no roles, account might not be accepted. Please Wait.");
+
+            claims.Add(new Claim("MainRole", mainRole, "Role"));
+
+            if (!roles.Any())
+                throw new BusinessException("User has no roles, account might not be accepted. Please Wait.");
+
             foreach (var role in roles)
             {
                 claims.Add(
