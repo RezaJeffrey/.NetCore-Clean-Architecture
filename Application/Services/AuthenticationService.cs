@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utils.Exceptions;
@@ -150,10 +151,10 @@ namespace Application.Services
                             user => user.UserName.ToLower() == RegisterUser.UserName.ToLower()
                         );
                 
-                if (createdUser == null) throw new BusinessException("User Creation Failed");
+                if (createdUser == null)
+                    throw new BusinessException("User Creation Failed");
 
                 List<Role> roles = new List<Role>();
-
                 if (user_dto.rolesToRegister.Any())
                 {
                     var roleAvailable = await RoleService.CheckRoleAvailable(user_dto.rolesToRegister.ToList());
@@ -193,6 +194,106 @@ namespace Application.Services
                 throw;
             }
         }
+        public async Task CreateUser(AuthDTO user_dto)
+        {
+            if (user_dto.Password != user_dto.PasswordRepeat)
+                throw new BusinessException("Passwords must match");
 
+            bool userExists = CoreService.Table()
+                .FirstOrDefault(user => user.UserName == user_dto.UserName) != null;
+
+            if (userExists)
+                throw new BusinessException(
+                        "a user with this username already exists, Consider Login or enter new username"
+                    );
+
+
+            var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(user_dto);
+
+            var hashService = await AuthUtilService.HashPassword(user_dto.Password);
+            RegisterUser.PasswordHash = hashService.hash;
+            RegisterUser.PasswordSalt = hashService.salt;
+
+            await CoreService.Create(RegisterUser);
+        }
+
+        public async Task<User?> GetUserByUsername(string username) // TODO add username index in DB
+        {
+            return await CoreService.Table()
+                .FirstOrDefaultAsync(
+                        user => user.UserName.ToLower() == username.ToLower()
+                    );
+        }
+
+        public async Task<string> UserSignUp(AuthDTO userDTO) 
+        {
+            try
+            {
+                await CoreService.BeginTransaction();
+
+                await CreateUser(userDTO);
+                var created_user = await GetUserByUsername(userDTO.UserName);
+
+                if (created_user == null)
+                    throw new BusinessException("User Creation Failed");
+
+                // create Default role Guest (10)
+                int guestRole = 10;
+
+                var guest_role = CoreService.Table<Role>()
+                    .FirstOrDefault(role => role.Gcode == guestRole);
+
+                if (guest_role == null)
+                    throw new BusinessException("Role is not valid");
+
+                await UserRoleService.AddUserRole(created_user.Id, guest_role.Gcode);
+
+                var MainUserRole = await UserRoleService.GetUserRole(created_user.Id, guest_role.Id);
+                created_user.MainRole = MainUserRole;
+                CoreService.GetDb().Update(created_user);
+
+                await CoreService.CommitAsync();
+                await CoreService.CommitTransaction();
+
+
+                var token = await GetAccessToken(userDTO);
+                return token;
+            }
+            catch (Exception)
+            {
+                await CoreService.RollBackTransaction();
+                throw;
+            }
+        }
+        public async Task<string> RegisterUser(AuthDTO userDTO) 
+        {
+            try
+            {
+                await CoreService.BeginTransaction();
+
+                await CreateUser(userDTO);
+                var created_user = GetUserByUsername(userDTO.UserName);
+
+                if (created_user == null)
+                    throw new BusinessException("User Creation Failed");
+
+                // create user Roles based on roles sent
+                
+
+
+
+                await CoreService.CommitAsync();
+                await CoreService.CommitTransaction();
+
+
+                var token = await GetAccessToken(userDTO);
+                return token;
+            }
+            catch (Exception)
+            {
+                await CoreService.RollBackTransaction();
+                throw;
+            }
+        }
     }
 }

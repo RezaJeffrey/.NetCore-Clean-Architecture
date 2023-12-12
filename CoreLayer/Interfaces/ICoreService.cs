@@ -1,9 +1,12 @@
-﻿using Utils.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Utils.Models;
 
 namespace CoreLayer.Interfaces
 {
     public interface ICoreService<T, TDTO> where T : class where TDTO : class
     {
+        public DbSet<T> GetDb();
+        public DbSet<TEntity> GetDb<TEntity>() where TEntity : class;
         public IQueryable<T> Table();
 
         public IQueryable<TEntity> Table<TEntity>() where TEntity : class;
