@@ -42,9 +42,11 @@ namespace Application.Services
             UserRoleService = userRoleService;
         }
         
-        public async Task<string> RefreshToken(string accessToken)
+        public async Task<string> RefreshToken(string? accessToken = null)
         {
-            var deserialized_token = AuthUtilService.getClaims(accessToken);
+            var deserialized_token = (accessToken.IsNullOrEmpty())
+                                        ? AuthUtilService.getClaims()
+                                        : AuthUtilService.getClaims(accessToken);   
 
             long userId = long.Parse(deserialized_token.GetClaim("UserId").Value);
 
