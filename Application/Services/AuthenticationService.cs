@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utils.Exceptions;
@@ -41,21 +42,23 @@ namespace Application.Services
             UserRoleService = userRoleService;
         }
         
-        public async Task<string> RefreshToken(string accessToken)
+        public async Task<string> RefreshToken(string? accessToken = null)
         {
-            var deserialized_token = AuthUtilService.getClaims(accessToken);
+            var deserialized_token = (accessToken.IsNullOrEmpty())
+                                        ? AuthUtilService.getClaims()
+                                        : AuthUtilService.getClaims(accessToken);   
 
             long userId = long.Parse(deserialized_token.GetClaim("UserId").Value);
-            User? user = await CoreService.FindByIdAsync(userId);
 
+            User? user = await CoreService.Table()
+                .Include(user => user.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(user => user.Id == userId);
+            
             if (user == null)
                 throw new BusinessException("User Not Found!");
 
-            var userRoles = CoreService.Table<UserRole>()
-                .Include(ur => ur.Role)
-                .Where(ur => ur.UserId == userId)
-                .Select(ur => ur.Role)
-                .ToList();
+            var userRoles = user.UserRoles.Select(ur => ur.Role).ToList();
 
             return AuthUcService.CreateToken(user, userRoles);
         }
@@ -63,8 +66,6 @@ namespace Application.Services
         public async Task<string> GetAccessToken(AuthDTO user_dto)
         {
             User? user = CoreService.Table()
-                .Include(u => u.MainRole)
-                    .ThenInclude(mr => mr.Role)
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
                 .FirstOrDefault(u => u.UserName == user_dto.UserName);
@@ -111,88 +112,131 @@ namespace Application.Services
 
             return token;
         }
-        public async Task<string> Register(AuthDTO user_dto)
+
+        public async Task CreateUser(AuthDTO userDTO)
+        {
+
+            if (userDTO.Password.IsNullOrEmpty())
+                throw new BusinessException("Invalid input.");
+
+            if (userDTO.Password != userDTO.PasswordRepeat)
+                throw new BusinessException("Passwords must match.");
+
+            bool userExists = CoreService.Table()
+                .FirstOrDefault(user => user.UserName == userDTO.UserName) != null;
+
+            if (userExists)
+                throw new BusinessException(
+                        "a user with this username already exists, Consider Login or enter new username."
+                    );
+
+            var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(userDTO);
+
+            var hashService = await AuthUtilService.HashPassword(userDTO.Password);
+            RegisterUser.PasswordHash = hashService.hash;
+            RegisterUser.PasswordSalt = hashService.salt;
+
+            await CoreService.Create(RegisterUser);
+
+        }
+
+        public async Task<User?> GetUserByUsername(string username) // TODO add username index in DB
+        {
+            return await CoreService.Table()
+                .FirstOrDefaultAsync(
+                        user => user.UserName.ToLower() == username.ToLower()
+                    );
+        }
+
+        public async Task UserSignUp(AuthDTO userDTO) 
         {
             try
             {
                 await CoreService.BeginTransaction();
 
-                if (user_dto.Password != user_dto.PasswordRepeat)
-                    throw new BusinessException("Passwords must match");
+                await CreateUser(userDTO);
+                var created_user = await GetUserByUsername(userDTO.UserName);
 
-                bool userExists = CoreService.Table()
-                    .FirstOrDefault(user => user.UserName == user_dto.UserName) != null;
+                if (created_user == null)
+                    throw new BusinessException("User Creation Failed");
 
-                if (userExists)
-                    throw new BusinessException(
-                            "a user with this username already exists, Consider Login or enter new username"
-                        );
+                #region Add Default Guest UserRole
+                int guest_role = 10;
 
+                var guestRole = CoreService.Table<Role>()
+                    .FirstOrDefault(role => role.Gcode == guest_role);
 
-                var RegisterUser = ObjectMapper.MapObject<AuthDTO, User>(user_dto);
-
-                if (user_dto.MainRoleGcode.IsNullOrEmpty()) user_dto.MainRoleGcode = "10";
-
-                var main_role = CoreService.Table<Role>()
-                    .FirstOrDefault(role => role.Gcode.ToString() == user_dto.MainRoleGcode);
-                
-                if (main_role == null)
+                if (guestRole == null)
                     throw new BusinessException("Role is not valid");
 
-                RegisterUser.MainRoleId = main_role.Id;
+                await UserRoleService.AddUserRole(created_user.Id, guestRole.Gcode, isMain: true, save: false);
 
-                var hashService = await AuthUtilService.HashPassword(user_dto.Password);
-                RegisterUser.PasswordHash = hashService.hash;
-                RegisterUser.PasswordSalt = hashService.salt;
-
-                await CoreService.Create(RegisterUser, true);
-
-                var createdUser = await CoreService.Table()
-                    .Include(user => user.MainRole)
-                    .FirstOrDefaultAsync(
-                            user => user.UserName.ToLower() == RegisterUser.UserName.ToLower()
-                        );
-                
-                if (createdUser == null) throw new BusinessException("User Creation Failed"); 
-
-                List<Role> roles = new List<Role>();
-
-                if (user_dto.rolesToRegister.Any())
-                {
-                    var roleAvailable = await RoleService.CheckRoleAvailable(user_dto.rolesToRegister.ToList());
-                    
-                    if (!roleAvailable)
-                        throw new BusinessException("Input role not valid");
-
-                    var roles_to_add = user_dto.rolesToRegister
-                        .Where(r => r != null)
-                        .Select(r => r.Gcode)
-                        .ToList();
-
-                    roles = await UserRoleService.AddUserRole(createdUser.Id, roles_to_add);
-                }
-                else
-                {
-                    int guestRole = 10; 
-                    roles.Add(await UserRoleService.AddUserRole(createdUser.Id, guestRole));
-                }
-
-                var exists = roles.Where(r => r.Gcode == createdUser.MainRole?.Role.Gcode).Any();
-                
-                if (!exists)
-                    throw new BusinessException("User MainRole doesn't match selected roles to add");
+                #endregion
 
                 await CoreService.CommitAsync();
                 await CoreService.CommitTransaction();
-
-                return AuthUcService.CreateToken(createdUser, roles);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 await CoreService.RollBackTransaction();
                 throw;
             }
         }
+        public async Task RegisterUser(AuthDTO userDTO) 
+        {
+            try
+            {
+                await CoreService.BeginTransaction();
 
+                await CreateUser(userDTO);
+                var created_user = await GetUserByUsername(userDTO.UserName);
+
+                if (created_user == null)
+                    throw new BusinessException("User Creation Failed");
+
+                // create user Roles based on roles sent
+                #region Add UserRoles
+
+                int guestRole = 10;
+                if (userDTO.MainRoleGcode.IsNullOrEmpty())
+                    userDTO.MainRoleGcode = guestRole.ToString();
+
+                List<Role> roles = new List<Role>();
+                if (userDTO.rolesToRegister.Any() && !userDTO.rolesToRegister.Any(r => r.Gcode == 0))
+                {
+                    var roleAvailable = await RoleService.CheckRoleAvailable(userDTO.rolesToRegister.ToList());
+
+                    if (!roleAvailable)
+                        throw new BusinessException("Input role not valid");
+
+                    var roles_to_add = userDTO.rolesToRegister
+                        .Where(r => r != null)
+                        .Select(r => r.Gcode)
+                        .ToList();
+
+                    roles = await UserRoleService.AddUserRole(created_user.Id, roles_to_add, int.Parse(userDTO.MainRoleGcode), false);
+                }
+                else
+                {
+                    roles.Add(await UserRoleService.AddUserRole(created_user.Id, guestRole, isMain: true, save: false));
+                }
+
+                var exists = roles.Where(r => r.Gcode == int.Parse(userDTO.MainRoleGcode)).Any();
+
+                if (!exists)
+                    throw new BusinessException("User MainRole doesn't match selected roles to add");
+
+                #endregion
+
+                await CoreService.CommitAsync();
+                await CoreService.CommitTransaction();
+                
+            }
+            catch (Exception)
+            {
+                await CoreService.RollBackTransaction();
+                throw;
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CoreLayer.Installers.AuthConfig.Handlers;
+using CoreLayer.Installers.AuthConfig.Policies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -30,10 +31,7 @@ namespace CoreLayer.Installers.AuthConfig
                 });
 
             // Add policies
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("RequireRole2", policy => policy.Requirements.Add(new RoleAuthorizationRequirement("2")));
-            });
+            services.AddPolicies();
 
             services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
         }

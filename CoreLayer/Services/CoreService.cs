@@ -23,6 +23,14 @@ namespace CoreLayer.Services
         }
 
 
+        public DbSet<T> GetDb()
+        {
+            return dbTable;
+        }
+        public DbSet<TEntity> GetDb<TEntity>() where TEntity : class
+        {
+            return db.Set<TEntity>();
+        }
         public IQueryable<T> Table()
         {
             return dbTable;
