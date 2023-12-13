@@ -3,7 +3,7 @@ using CoreLayer.Installers;
 using CoreLayer.Installers.AuthConfig;
 using Utils.Installers;
 
-namespace WebFater.Installers
+namespace Web.Installers
 {
     public static class ServicesInstaller
     {

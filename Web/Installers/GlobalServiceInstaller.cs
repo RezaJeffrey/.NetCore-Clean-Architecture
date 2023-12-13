@@ -3,7 +3,7 @@ using CoreLayer.Services;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebFater.Installers
+namespace Web.Installers
 {
     public static class GlobalServiceInstaller
     {

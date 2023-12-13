@@ -1,5 +1,5 @@
-using WebFater.Installers;
-using WebFater.Middlewares;
+using Web.Installers;
+using Web.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 

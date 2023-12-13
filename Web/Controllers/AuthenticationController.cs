@@ -3,7 +3,7 @@ using Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebFater.Controllers
+namespace Web.Controllers
 {
     [ApiController]
     [Route("Authentication")]

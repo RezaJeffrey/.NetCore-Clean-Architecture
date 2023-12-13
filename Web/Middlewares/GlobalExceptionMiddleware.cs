@@ -3,16 +3,16 @@ using System.Net;
 using System.Text.Json;
 using Utils.Exceptions;
 
-namespace WebFater.Middlewares
+namespace Web.Middlewares
 {
-    public class GlobalDevExceptionMiddleware
+    public class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
-        public GlobalDevExceptionMiddleware(RequestDelegate next) 
+        public GlobalExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
         }
-        public async Task Invoke(HttpContext context) 
+        public async Task Invoke(HttpContext context)
         {
             try
             {
@@ -39,24 +39,13 @@ namespace WebFater.Middlewares
             {
                 BusinessException appException => (
                     appException.StatusCode,
-                    JsonConvert.SerializeObject(new { 
-                        errorMessage = appException.Message,
-                        stackTrace = appException.StackTrace,
-                        InnerException = appException.InnerException,
-                        source = appException.Source 
-                    })
+                    JsonConvert.SerializeObject(new { errorMessage = appException.Message })
                 ),
-                _ => ( 
+                _ => (
                         (int)HttpStatusCode.InternalServerError,
-                        JsonConvert.SerializeObject(new
-                        {
-                            errorMessage = exception.Message,
-                            stackTrace = exception.StackTrace,
-                            InnerException = exception.InnerException,
-                            source = exception.Source
-                        })
+                        JsonConvert.SerializeObject(new { errorMessage = exception.Message })
                 )
             };
-        
+
     }
 }
