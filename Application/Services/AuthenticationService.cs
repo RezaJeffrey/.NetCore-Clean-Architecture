@@ -200,7 +200,7 @@ namespace Application.Services
                     userDTO.MainRoleGcode = guestRole.ToString();
 
                 List<Role> roles = new List<Role>();
-                if (userDTO.rolesToRegister.Any())
+                if (userDTO.rolesToRegister.Any() && !userDTO.rolesToRegister.Any(r => r.Gcode == 0))
                 {
                     var roleAvailable = await RoleService.CheckRoleAvailable(userDTO.rolesToRegister.ToList());
 
@@ -212,11 +212,11 @@ namespace Application.Services
                         .Select(r => r.Gcode)
                         .ToList();
 
-                    roles = await UserRoleService.AddUserRole(created_user.Id, roles_to_add, int.Parse(userDTO.MainRoleGcode));
+                    roles = await UserRoleService.AddUserRole(created_user.Id, roles_to_add, int.Parse(userDTO.MainRoleGcode), false);
                 }
                 else
                 {
-                    roles.Add(await UserRoleService.AddUserRole(created_user.Id, guestRole, isMain: true));
+                    roles.Add(await UserRoleService.AddUserRole(created_user.Id, guestRole, isMain: true, save: false));
                 }
 
                 var exists = roles.Where(r => r.Gcode == int.Parse(userDTO.MainRoleGcode)).Any();
