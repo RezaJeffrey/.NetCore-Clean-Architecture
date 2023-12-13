@@ -23,7 +23,7 @@ namespace Application.Services
             TestRoleService = testRoleService;
         }
 
-        public async Task<Role> AddUserRole(long userId, int roleGcode, bool save = true)
+        public async Task<Role> AddUserRole(long userId, int roleGcode, bool isMain = false, bool save = true)
         {
             User? user = CoreService.Table<User>().Where(user => user.Id == userId).FirstOrDefault();
             if (user == null) { throw new BusinessException("User not found"); }
@@ -35,31 +35,46 @@ namespace Application.Services
             UserRole userRole = new UserRole();
             userRole.UserId = userId;
             userRole.RoleId = role.Id;
+            userRole.IsMainRole = isMain;
 
             await CoreService.Create(userRole, save);
 
             return role;
         }
 
-        public async Task<List<Role>> AddUserRole(long userId, List<int> roleGcodes, bool save = true)
+        public async Task<List<Role>> AddUserRole(long userId, List<int> roleGcodes, int mainRoleCode = 0, bool save = true)
         {
-            User? user = CoreService.Table<User>().Where(user => user.Id == userId).FirstOrDefault();
-            if (user == null) { throw new BusinessException("User not found"); }
+            User? user = CoreService.Table<User>()
+                .Where(user => user.Id == userId)
+                .FirstOrDefault();
+
+            if (user == null) 
+                throw new BusinessException("User not found"); 
 
             var roles = await CoreService.Table<Role>()
                 .Where(role => roleGcodes.Contains(role.Gcode))
                 .ToListAsync();
 
-            if (!roles.Any()) throw new BusinessException("role not valid");
+            if (!roles.Any())
+                throw new BusinessException("role not valid");
 
+            bool mainExistsInput = false;
             foreach(var role in roles)
             {
                 UserRole userRole = new UserRole();
                 userRole.UserId = userId;
                 userRole.RoleId = role.Id;
 
+                if (role.Gcode == mainRoleCode)
+                {
+                    userRole.IsMainRole = true;
+                    mainExistsInput = true;
+                }
                 await CoreService.Create(userRole, false);
             }
+
+            if (!mainExistsInput && mainRoleCode != 0)
+                throw new BusinessException("Main role does not exist in sent roles.");
 
             if (save) { await CoreService.CommitAsync(); }
             return roles;
