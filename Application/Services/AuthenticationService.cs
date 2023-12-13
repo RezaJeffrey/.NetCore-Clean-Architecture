@@ -4,12 +4,6 @@ using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Utils.Exceptions;
 using Utils.Extentions;
 using Utils.Mappings;
@@ -22,14 +16,14 @@ namespace Application.Services
         private readonly ICoreService<User, UserDTO> CoreService;
         private readonly AuthUcService AuthUcService;
         private readonly AuthUtilService AuthUtilService;
-        private readonly TestRoleService RoleService;
+        private readonly RoleService RoleService;
         private readonly LoginLogService LoginLogService;
         private readonly UserRoleService UserRoleService;
         public AuthenticationService(
             AuthUcService authUcService,
             ICoreService<User, UserDTO> coreService,
             AuthUtilService authUtilService,
-            TestRoleService roleService,
+            RoleService roleService,
             LoginLogService loginLogService,
             UserRoleService userRoleService
             )
@@ -140,7 +134,7 @@ namespace Application.Services
 
         }
 
-        public async Task<User?> GetUserByUsername(string username) // TODO add username index in DB
+        public async Task<User?> GetUserByUsername(string username) 
         {
             return await CoreService.Table()
                 .FirstOrDefaultAsync(

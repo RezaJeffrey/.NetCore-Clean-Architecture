@@ -1,7 +1,5 @@
-﻿using AutoMapper.Execution;
-using CoreLayer.Interfaces;
+﻿using CoreLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using System.Reflection;
 using Utils.Models;
 using Utils.Expressions;
@@ -210,7 +208,7 @@ namespace CoreLayer.Services
 
         }
 
-        public async Task<GridData<T>> ToPaging(int pageNumber = 1, int pageSize = int.MaxValue, string? orderType = null)  // TODO test ToPagin + implement ToPaging by orderfield
+        public async Task<GridData<T>> ToPaging(int pageNumber = 1, int pageSize = int.MaxValue, string? orderType = null) 
         {
             var gridData = new GridData<T>();
             var data = await Table().Skip(pageNumber - 1).Take(pageSize).ToListAsync();

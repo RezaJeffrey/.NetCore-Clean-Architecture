@@ -2,12 +2,7 @@
 using Domain.DTOs;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils.Exceptions;
 
 namespace Application.Services
@@ -16,11 +11,9 @@ namespace Application.Services
     {
 
         public ICoreService<UserRole, UserRoleDTO> CoreService { get; set; }
-        public TestRoleService TestRoleService { get; set; }
-        public UserRoleService(ICoreService<UserRole, UserRoleDTO> coreService, TestRoleService testRoleService)
+        public UserRoleService(ICoreService<UserRole, UserRoleDTO> coreService)
         {
             CoreService = coreService;
-            TestRoleService = testRoleService;
         }
 
         public async Task<Role> AddUserRole(long userId, int roleGcode, bool isMain = false, bool save = true)

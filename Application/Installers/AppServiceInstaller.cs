@@ -13,7 +13,7 @@ namespace Application.Installers
         public static void AddApplicationLayerServices(this IServiceCollection service)
         {
 
-            service.AddTransient<TestRoleService, TestRoleService>();
+            service.AddTransient<RoleService, RoleService>();
             service.AddTransient<AuthenticationService, AuthenticationService>();
             service.AddTransient<LoginLogService, LoginLogService>();
             service.AddTransient<UserRoleService, UserRoleService>();

@@ -2,7 +2,6 @@
 using Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace WebFater.Controllers
 {
@@ -17,17 +16,17 @@ namespace WebFater.Controllers
             AuthenticationService = authService;
         }
 
-        [HttpPost("SignUpUser")]
+        [HttpPost("UserSignUp")]
         [AllowAnonymous]
-        public async Task<string> Register(AuthDTO user)
+        public async Task<string> UserSignUp(AuthDTO user)
         {
             await AuthenticationService.UserSignUp(user);
             return await AuthenticationService.GetAccessToken(user);
         }
 
-        [HttpPost("SignUpAdmin")]
-        [AllowAnonymous]
-        public async Task<string> AdminRegister(AuthDTO user)
+        [HttpPost("RegisterUser")]
+        [Authorize(Policy = "Policy1")]
+        public async Task<string> RegisterUser(AuthDTO user)
         {
             await AuthenticationService.RegisterUser(user);
             return await AuthenticationService.GetAccessToken(user);
