@@ -18,16 +18,6 @@ namespace Web.Controllers
         }
 
         /// <summary>
-        ///     Bind Roles Tree For Settings
-        /// </summary>
-        [HttpGet("BindRolesTree")]
-        [Authorize(Policy = Policy.SuperAdmin)]
-        public async Task<List<RoleTreeDTO>> BindRolesTree()
-        {
-            return await _roleService.BindRolesTree();  
-        }
-
-        /// <summary>
         ///     Get List of available roles
         /// </summary>
         /// <remarks>
