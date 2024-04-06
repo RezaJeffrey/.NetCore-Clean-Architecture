@@ -1,0 +1,69 @@
+version: '3.4'
+
+services:
+  # DataBase
+  fiber-sql-server:
+    container_name: fiber-sql-server
+    networks:
+        - backend
+    ports:
+        - "32788:1433"
+    environment:
+       SA_PASSWORD: "Re@li8289"
+       ACCEPT_EULA: Y
+    volumes:
+        - SqlDataBase:/var/opt/mssql
+
+    restart: unless-stopped
+
+  # API projects
+  webfiber:
+    container_name: BackendFiber
+    networks: 
+        - backend
+    ports:
+        - "8080:80"
+    environment:
+        ASPNETCORE_ENVIRONMENT: "Development"
+        ASPNETCORE_URLS: "http://+:80"
+        ASPNET_VERSION: "7.0.3"
+        DOTNET_VERSION: "7.0.3"
+        ConnectionStrings__DevConnection: "Server=fiber-sql-server;Database=FaterTest;User Id=sa;Password=Re@li8289;TrustServerCertificate=True;"
+    
+    depends_on:
+      - fiber-sql-server
+
+    volumes:    
+       - /home/ubuntu/Docker/StaticFiles:/app/StaticFiles
+       - /home/ubuntu/Docker/Logs:/app/logs
+
+    restart: unless-stopped
+
+  # Third-Party
+  seq:
+    image: datalust/seq:latest
+    container_name: fiber.seq
+    networks:
+        - backend
+    environment:
+       ACCEPT_EULA: Y
+    ports:
+        - 53411:5341
+        - 8081:80
+    
+    volumes:
+       - Seq_data:/app/StaticFiles
+
+    restart: unless-stopped
+
+  portainer:
+    container_name: portainer
+    restart: always
+    ports:
+        - "8000:8000"
+        - "9000:9000"
+    
+    volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+        - "Portainer_data:/data"
+

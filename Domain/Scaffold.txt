@@ -1,0 +1,4 @@
+
+
+Scaffold-DbContext "Server=localhost;DataBase=FaterTest;Trusted_Connection=true;TrustServerCertificate=true" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -f -NoOnConfiguring
+

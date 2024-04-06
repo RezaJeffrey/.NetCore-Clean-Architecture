@@ -1,0 +1,24 @@
+### DotnetCore ###
+# .NET Core build folders
+bin/
+obj/
+
+# .Net core Ignore files
+# WebFiber/appsettings.Development.json
+
+# Common node modules locations
+/node_modules
+/wwwroot/node_modules
+
+# .vs
+.vs/
+
+# .Visual Studio properties
+Web/Properties/PublishProfiles/
+*.csproj.user
+
+# StaticFiles
+Web/StaticFiles/
+
+# logs
+Web/logs/

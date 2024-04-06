@@ -1,0 +1,29 @@
+version: '3.4'
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  
+  fiber-sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-CU10-ubuntu-22.04
+
+
+  webfiber:
+    image: ${DOCKER_REGISTRY-}webfiber
+    build:
+      context: .
+      dockerfile: WebFiber/Dockerfile
+    
+  seq:
+    image: datalust/seq:latest
+
+  portainer:
+    image: portainer/portainer-ce
+
+volumes:
+  SqlDataBase:
+  Seq_data:  
+  Portainer_data:  
+  
