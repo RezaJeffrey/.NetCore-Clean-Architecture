@@ -29,7 +29,6 @@ namespace Domain.DTOs
 
         public List<RoleDTO> Roles { get; set; } = new List<RoleDTO>();
 
-        public StatusDTO? Status { get; set; }
 
         public static implicit operator UserDTO(User user)
         {

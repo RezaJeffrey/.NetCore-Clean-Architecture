@@ -27,6 +27,5 @@ namespace Domain.DTOs
 
         public RoleDTO? Role { get; set; }
 
-        public StatusDTO? Status { get; set; }
     }
 }

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DomainFiber\Domain.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Utils\Utils.csproj" />
   </ItemGroup>
 

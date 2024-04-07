@@ -65,78 +65,6 @@ namespace Application.Services
                 await GetFileUrl(FilePath);
         }
 
-        public async Task UploadProjectFile(FileDTO file, string? fileName, long ProjectId)
-        {
-            var UserId = AuthUtilService.getUserId();
-            var UserRole = AuthUtilService.GetUserRole();
-
-
-            var project = await CoreService.Table<Project>()
-                .FirstOrDefaultAsync(p => p.Id == ProjectId);
-
-            if (UserRole != Policy.SuperAdmin && UserRole != Policy.Admin)  // Only Admin can upload file for project(Project Status and transitions)
-            {
-                throw new ServiceException("You might now have access to upload file for this project");
-            }
-
-            if (project == null)
-            {
-                throw new ServiceException("Project Not Found");
-            }
-
-            var url = await UploadFile(
-                file,
-                DateTime.Now,
-                nameof(Project),
-                ProjectId.ToString(),
-                fileName
-                );
-
-            var File = new Domain.Models.File()
-            {
-                FileName = fileName ?? string.Empty,
-                EntityType = nameof(Project),
-                EntityId = ProjectId,
-                Url = url
-            };
-
-            await CoreService.Create(File);
-        }
-
-        public async Task UploadWFTransitionFile(FileDTO file, string? fileName, long transitionId)
-        {
-            var UserId = AuthUtilService.getUserId();
-            var UserRole = AuthUtilService.GetUserRole();
-
-
-            var WFTransition = await CoreService.Table<Wftransition>()
-                .FirstOrDefaultAsync(p => p.Id == transitionId)
-                    ?? throw new ServiceException("وضعیت یافت نشد");
-
-            if (!UserRole?.IsAdminOrSuperAdmin() == true)  // Only Admin can upload file for project
-            {
-                throw new ServiceException("شما دسترسی لازم برای آپلود فایل این پروژه را ندارید");
-            }
-
-            var url = await UploadFile(
-                file,
-                DateTime.Now,
-                nameof(Wftransition),
-                transitionId.ToString(),
-                fileName
-                );
-
-            var File = new Domain.Models.File()
-            {
-                FileName = fileName ?? string.Empty,
-                EntityType = nameof(Wftransition),
-                EntityId = transitionId,
-                Url = url
-            };
-
-            await CoreService.Create(File);
-        }
-
         public async Task<string> GetFileUrl(string originUrl)
         {
             var normalized = originUrl.Replace("\\", "/");
@@ -185,20 +113,6 @@ namespace Application.Services
             return
                 TypedResults.PhysicalFile(filePath, fileDownloadName: $"{fileDownLoadName}");
 
-        }
-
-        public async Task<List<FileDTO>> GetProjectFiles(long ProjectId = 0)
-        {
-            var Files = await CoreService.Table()
-                .Where(f => f.EntityType == nameof(Project) && f.EntityId == ProjectId)
-                .ToListAsync();
-
-            return Files.Select(f => new FileDTO()
-            {
-                Id = ProjectId ,
-                Url = f.Url
-            })
-            .ToList();
         }
 
         public async Task<List<FileDTO>> GetEntityFilesDto(string EntityType, long EntityId)
