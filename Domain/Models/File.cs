@@ -27,9 +27,9 @@ public partial class File
 
     public long? DeleteUserId { get; set; }
 
-    public virtual Product? Entity { get; set; }
+    //public virtual Product? Entity { get; set; }
 
-    public virtual Wftransition? Entity1 { get; set; }
+    //public virtual Wftransition? Entity1 { get; set; }
 
-    public virtual Project? EntityNavigation { get; set; }
+    //public virtual Project? EntityNavigation { get; set; }
 }

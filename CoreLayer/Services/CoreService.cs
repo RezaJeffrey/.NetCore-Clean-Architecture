@@ -74,7 +74,7 @@ namespace CoreLayer.Services
                 PI_Cdate.SetValue(T, DateTime.Now.Ticks, null);
                 PI_CuserId.SetValue(
                         T,
-                        AuthUtilService.getUserId(),
+                        AuthUtilService.GetUserId(),
                         null
                     );
 
@@ -112,7 +112,7 @@ namespace CoreLayer.Services
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
                 PI_DuserId.SetValue(
                         Entity, 
-                        AuthUtilService.getUserId(),
+                        AuthUtilService.GetUserId(),
                         null
                     );
 
@@ -152,7 +152,7 @@ namespace CoreLayer.Services
                 PI_Ddate.SetValue(Entity, DateTime.Now.Ticks, null);
                 PI_DuserId.SetValue(
                         Entity,
-                        AuthUtilService.getUserId(),
+                        AuthUtilService.GetUserId(),
                         null
                     ); 
 
@@ -193,7 +193,7 @@ namespace CoreLayer.Services
                 PI_MuserId.SetValue
                     (
                         InputEntity,
-                        AuthUtilService.getUserId(),
+                        AuthUtilService.GetUserId(),
                         null
                     ); 
 

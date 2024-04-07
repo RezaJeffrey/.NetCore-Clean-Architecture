@@ -21,7 +21,9 @@ namespace Utils.Services
     public class AuthUtilService
     {
         private readonly IConfiguration _configuration;
+
         private readonly IHttpContextAccessor HttpContextAccessor;
+
         public AuthUtilService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
@@ -92,7 +94,7 @@ namespace Utils.Services
             return Convert.ToBase64String(hash).Equals(Convert.ToBase64String(passwordHash.hash));
         }
 
-        public IEnumerable<Claim> getClaims(string? AccessToken = null)
+        public IEnumerable<Claim> GetClaims(string? AccessToken = null)
         {
             var securityTokenHandler = new JwtSecurityTokenHandler();
             var accessToken = (AccessToken) ?? GetUserToken();
@@ -106,28 +108,27 @@ namespace Utils.Services
             return new List<Claim>();
         }
 
-        public string? getUserName()
+        public string? GetUserName()
         {
-            return getClaims().Where(claim => claim.Type == "UserName").FirstOrDefault()?.Value;
+            return GetClaims().Where(claim => claim.Type == "UserName").FirstOrDefault()?.Value;
         }
-        public long? getUserId()
+
+        public long? GetUserId()
         {
-            string? UserId = getClaims().Where(claim => claim.Type == "UserId").FirstOrDefault()?.Value;
+            string? UserId = GetClaims().Where(claim => claim.Type == "UserId").FirstOrDefault()?.Value;
             return long.TryParse(UserId, out long userId) ? userId : null;   
         }
-        public List<Claim> getRoleClaims()
-        {
-            return getClaims().Where(claim => claim.Type == "Role").ToList();
-        }
+
         public string? GetUserToken()
         {
             string? accessToken = HttpContextAccessor.HttpContext?.Request.Headers[HeaderNames.Authorization];
             accessToken = accessToken?.Replace("Bearer ", "");
             return accessToken;
         }
+
         public string? GetUserRole()
         {
-            return getClaims().Where(claim => claim.Type == "MainRole").FirstOrDefault()?.Value;
+            return GetClaims().Where(claim => claim.Type == "Role").FirstOrDefault()?.Value;
         }
 
         public string? GetClientIp()
@@ -137,7 +138,7 @@ namespace Utils.Services
 
         public (long UserId, string UserRole) GetUserCredentials()
         {
-            var userId = getUserId() ?? throw new ServiceException("خطا در احراز هویت");
+            var userId = GetUserId() ?? throw new ServiceException("خطا در احراز هویت");
             var userRole = GetUserRole() ?? throw new ServiceException("خطا در احراز هویت");
 
             return (userId, userRole);
@@ -145,7 +146,7 @@ namespace Utils.Services
 
         public (long? UserId, string? UserRole) GetUserCredentials(bool exception)
         {
-            var userId = getUserId();
+            var userId = GetUserId();
             var userRole = GetUserRole();
 
             if (exception)

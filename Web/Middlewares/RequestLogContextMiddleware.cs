@@ -20,7 +20,7 @@ namespace Web.Middlewares
             var _authUtilService = serviceProvider.GetRequiredService<AuthUtilService>();
 
             using (LogContext.PushProperty("CorrelcationId", context.TraceIdentifier))
-            using (LogContext.PushProperty("UserName", _authUtilService.getUserName() ?? "Guest"))
+            using (LogContext.PushProperty("UserName", _authUtilService.GetUserName() ?? "Guest"))
             {
                 return _next(context);
             }

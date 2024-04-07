@@ -17,31 +17,7 @@ namespace Web.Controllers
             _fileService = fileService;
         }
 
-        /// <remarks>
-        /// <strong>Role</strong>: Admin <br/>
-        /// <strong>Description</strong>: 
-        /// upload file , Enter optional fileName, lastly RequestId of the project which file is related to.
-        /// </remarks>
-        /// <param name="file"></param>
-        /// <param name="fileName"></param>
-        /// <param name="projectId"></param>
-        [HttpPost("UploadProjectFile")]
-        [Authorize(Policy = Policy.Admin)]
-        public async Task<IActionResult> UploadProjectFile([FromForm] FileDTO file, string? fileName, long projectId = 0)
-        {
-            try
-            {
-                await _fileService.UploadProjectFile(file, fileName, projectId);
-                return Ok("Uploaded");
 
-            }
-            catch (Exception)
-            {
-                throw;
-                //return BadRequest();
-            }
-
-        }
 
         /// <remarks>
         /// <strong>Role</strong>: Agent - Customer (will be changed) <br/>
@@ -57,20 +33,6 @@ namespace Web.Controllers
         {
             return 
                 await _fileService.ServeFile(fileUrl);
-        }
-
-        /// <remarks>
-        /// <strong>Role</strong>: Agent - Customer (will be changed) <br/>
-        /// <strong>Description</strong>: 
-        ///     pass RequestId of the Project to get associated files (Only the RequestId and Url of files will be send)
-        /// </remarks>
-        /// <param name="ProjectId"></param>
-        [HttpGet("GetProjectFiles/{ProjectId}")]
-        [Authorize(Policy = Policy.CustomerOrAgent)]
-        public async Task<List<FileDTO>> GetProjectFiles(long ProjectId)
-        {
-            return
-                await _fileService.GetProjectFiles(ProjectId);
         }
 
         // TODO: Update EntityType values

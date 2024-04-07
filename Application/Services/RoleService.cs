@@ -47,7 +47,7 @@ namespace Application.Services
                 RoleParent.ParentId = (long)parentID;
 
                 RoleParent.CreateDate = DateTime.Now.Ticks;
-                RoleParent.CreateUserId = AuthUtilService.getUserId();
+                RoleParent.CreateUserId = AuthUtilService.GetUserId();
 
                 await CoreService.GetDb<RoleParent>()
                     .AddAsync(RoleParent);

@@ -22,14 +22,12 @@ namespace Application.Services
         private readonly AuthUtilService AuthUtilService;
         private readonly RoleService _roleService;
         private readonly LoginLogService LoginLogService;
-        private readonly UserRoleService UserRoleService;
         public AuthenticationService(
             AuthUcService authUcService,
             ICoreService<User> coreService,
             AuthUtilService authUtilService,
             RoleService roleService,
-            LoginLogService loginLogService,
-            UserRoleService userRoleService
+            LoginLogService loginLogService
             )
         {
             CoreService = coreService;
@@ -37,7 +35,6 @@ namespace Application.Services
             AuthUtilService = authUtilService;
             _roleService = roleService;
             LoginLogService = loginLogService;
-            UserRoleService = userRoleService;
         }
         
         public async Task<string> GetAccessToken(AuthDTO user_dto)
@@ -57,9 +54,8 @@ namespace Application.Services
                 }
 
                 user = await CoreService.Table()
-                    .Include(u => u.UserRoles)
-                        .ThenInclude(ur => ur.Role)
-                    .FirstOrDefaultAsync(u => u.UserName == user_dto.UserName || u.PhoneNumber == user_dto.PhoneNumber);
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.UserName == user_dto.UserName);
 
                 if (user == null)
                     throw new ServiceException("نام کاربری یا رمز عبور اشتباه است");
@@ -91,16 +87,17 @@ namespace Application.Services
                 }
 
 
-                var userRoles = user.UserRoles.Select(ur => ur.Role).ToList();
-
                 bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 
                 bool isSuperAdmin = false;
-                if (userRoles.Any(r => r.Gcode == 1) && isDevelopment)
+                if (
+                    user is { Role.Gcode: 1, Role: not null} &&
+                    isDevelopment
+                )
                 {
                     isSuperAdmin = true;
                 }
-                var token = AuthUcService.CreateToken(user, userRoles, isSuperAdmin);
+                var token = AuthUcService.CreateToken(user, isSuperAdmin);
 
                 log.IsSuccess = true;
                 await LoginLogService.CoreService.Create(log);
@@ -197,23 +194,6 @@ namespace Application.Services
         public async Task DeleteUser(long userId)
         {
             var Creds = AuthUtilService.GetUserCredentials();
-
-            if (!Creds.UserRole.IsAdminOrSuperAdmin())
-            {
-                // Check Conditions
-                if (Creds.UserRole == "5" || Creds.UserRole == "6")
-                {
-                    var SubUsers = await _userService.BindSubUsers(userId);
-                    if (!SubUsers.Any(u => u.Id == userId))
-                    {
-                        throw new ServiceException("شما دسترسی کافی برای انجام این عملیات را ندارید");
-                    }
-                }
-                else
-                {
-                    throw new ServiceException("شما دسترسی کافی برای انجام این عملیات را ندارید");
-                }
-            }
 
             // Delete User
             var User =

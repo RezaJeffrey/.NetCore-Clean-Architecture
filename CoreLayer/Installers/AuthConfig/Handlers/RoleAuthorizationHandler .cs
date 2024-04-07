@@ -29,72 +29,30 @@ namespace CoreLayer.Installers.AuthConfig.Handlers
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RoleAuthorizationRequirement requirement)
         {
-            if (requirement.IsMulti)
+
+            if (UserIsInRole(requirement.RequiredRole ?? throw new Exception("RequiredRole must not be null")))
             {
-                if (UserHasRoleOrParents(requirement.RequiredRoles))
-                {
-                    context.Succeed(requirement);
-                }
-            }
-            else
-            {
-                if (UserHasRoleOrParents(requirement.RequiredRole ?? throw new Exception("RequiredRole must not be null")))
-                {
-                    context.Succeed(requirement);
-                }
+                context.Succeed(requirement);
             }
 
             return Task.CompletedTask;
         }
 
-        private bool UserHasRoleOrParents(string requiredRole)
+        private bool UserIsInRole(string requiredRole)
         {
-            var userId = AuthUtilService.getUserId();
+            var userId = AuthUtilService.GetUserId();
 
-            var user_roles = AuthUtilService.getRoleClaims();
+            var user_role = AuthUtilService.GetUserRole();
 
             var required_role = CoreService.Table()
-                .Include(r => r.RoleParentRoles)
-                .ThenInclude(p => p.Parent)
                 .FirstOrDefault(r => r.Gcode == int.Parse(requiredRole));
 
             #region check null values
-            if (required_role == null) throw new ServiceException("policy not correct!");
-            if (user_roles == null) throw new ServiceException("user not found!");
+            if (required_role == null) throw new ServiceException("policy input not correct");
+            if (user_role == null) throw new ServiceException("Failed fetching user role");
             #endregion
 
-            return user_roles.Any(r =>
-                    r.Value == required_role.Gcode.ToString()
-                    || required_role.RoleParentRoles.Any(p => p.Parent?.Gcode.ToString() == r.Value)
-                );
-        }
-
-        private  bool UserHasRoleOrParents(List<string> requiredRoles)
-        {
-            var userId = AuthUtilService.getUserId()
-                ?? throw new ServiceException("خطا در احراز هویت");
-
-            var UserRole = AuthUtilService.GetUserRole()
-                ?? throw new ServiceException("خطا در احراز هویت");
-
-            List<Role> required_roles = CoreService.Table()
-                .Include(r => r.RoleParentRoles)
-                .ThenInclude(p => p.Parent)
-                .Where(role => requiredRoles.Any(rr => rr == role.Gcode.ToString()))
-                .ToList();
-
-            #region check null values
-            if (!required_roles.Any())
-                throw new ServiceException("policy not correct!");
-            #endregion
-
-            bool result = required_roles
-                .Any(role => 
-                    role.Gcode.ToString() == UserRole ||
-                    role.RoleParentRoles.Any(rp => rp.Parent?.Gcode.ToString() == UserRole)
-                );
-
-            return result;
+            return user_role == requiredRole;
         }
     }
 

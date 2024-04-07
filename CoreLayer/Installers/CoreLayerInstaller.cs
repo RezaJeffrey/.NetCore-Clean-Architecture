@@ -11,13 +11,13 @@ namespace CoreLayer.Installers
     {
         public static void UseDbContext(this IServiceCollection service, IConfiguration configuration)
         {
-            service.AddDbContext<FaterTestContext>(options =>
+            service.AddDbContext<CleanContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DevConnection"));
             }
             );
 
-            service.AddScoped<DbContext, FaterTestContext>();
+            service.AddScoped<DbContext, CleanContext>();
             service.AddScoped(typeof(ICoreService<>), typeof(CoreService<>));
             service.AddScoped(typeof(AuthUcService));
 

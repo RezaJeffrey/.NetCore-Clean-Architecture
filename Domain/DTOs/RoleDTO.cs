@@ -11,11 +11,10 @@ namespace Domain.DTOs
     public class RoleDTO
     {
         public long? Id { get; set; }
+
         public string? Name { get; set; }
 
         public int Gcode { get; set; }
-
-        public string? Description { get; set; }
 
         public static implicit operator RoleDTO(Role role)  // convert Role to RoleDTO
         {
@@ -23,8 +22,7 @@ namespace Domain.DTOs
             {
                 Id = role.Id,
                 Name = role.Name,
-                Gcode = role.Gcode,
-                Description = role.Description
+                Gcode = role.Gcode
             };
         }
 
@@ -34,8 +32,7 @@ namespace Domain.DTOs
             {
                 Id = role.Id ?? 0,
                 Name = role.Name ?? string.Empty,
-                Gcode = role.Gcode,
-                Description = role.Description
+                Gcode = role.Gcode
             };
         }
     }
