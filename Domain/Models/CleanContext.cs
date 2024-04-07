@@ -11,6 +11,8 @@ public partial class CleanContext : DbContext
     {
     }
 
+    public virtual DbSet<File> Files { get; set; }
+
     public virtual DbSet<LogLogin> LogLogins { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -19,6 +21,21 @@ public partial class CleanContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<File>(entity =>
+        {
+            entity.ToTable("File");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.CreateUserId).HasColumnName("CreateUserID");
+            entity.Property(e => e.DeleteUserId).HasColumnName("DeleteUserID");
+            entity.Property(e => e.EntityId).HasColumnName("EntityID");
+            entity.Property(e => e.EntityType)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.ModifyUserId).HasColumnName("ModifyUserID");
+            entity.Property(e => e.Url).IsUnicode(false);
+        });
+
         modelBuilder.Entity<LogLogin>(entity =>
         {
             entity.ToTable("LogLogin");
