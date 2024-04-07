@@ -144,17 +144,6 @@ namespace Application.Services
 
             RegisterUser.PasswordHash = hashService.hash;
             RegisterUser.PasswordSalt = hashService.salt;
-            RegisterUser.PhoneNumber = userDTO.PhoneNumber;
-            //RegisterUser.UserStatusId = userDTO.UserStatusId;
-            //RegisterUser.AccessCode = userDTO.AccessCode;
-
-            //if (userDTO.ParentId != null && userDTO.ParentId != 0)
-            //{
-            //    var parent = await CoreService.Table().FirstOrDefaultAsync(u => u.Id == userDTO.ParentId)
-            //        ?? throw new ServiceException("Parent Not Valid");
-
-            //    RegisterUser.ParentId = parent.Id;  
-            //}
 
             await CoreService.Create(RegisterUser, save);
             return RegisterUser;
@@ -163,9 +152,7 @@ namespace Application.Services
         public async Task<GridData<UserDTO>> BindUsersPaging(GridData<UserDTO> gridData)
         {
             var UsersGrid = await CoreService.Table()
-                //.Include(user => user.UserStatus)
-                .Include(user => user.UserRoles)
-                .ThenInclude(ur => ur.Role)
+                .Include(user => user.Role)
                 .ToPagingGridAsync<User, UserDTO>(gridData.pageNumber, gridData.pageSize);
 
             if (UsersGrid.Data.Count == 0)
@@ -173,19 +160,7 @@ namespace Application.Services
                 return new GridData<UserDTO>();
             }
 
-            var paginated = UsersGrid.Data.Select(user => new UserDTO()
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserName = user.UserName,
-                PhoneNumber = user.PhoneNumber,
-                AccessCode = user.AccessCode,
-                //StatusString = user.UserStatus?.Name ?? "نامشخص",
-                UserRole = user.UserRoles.FirstOrDefault(ur => ur.IsMainRole)?.Role.Name ?? "نامشخص",
-                CreateDate = user.CreateDate.ToShamsiShortDate() ?? "N/A"
-            })
-                .ToList();
+            var paginated = UsersGrid.Data.Select(user => (UserDTO)user).ToList();
 
             UsersGrid.GridData.Data = paginated;
             return UsersGrid.GridData;

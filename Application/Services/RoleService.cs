@@ -33,27 +33,13 @@ namespace Application.Services
             Role role = dto;
 
             var Exists = await CoreService.Table()
-                .AnyAsync(r => r.Id == dto.Id || r.Gcode == dto.Gcode);
+                .AnyAsync(r => r.Gcode == dto.Gcode);
 
             if (Exists)
                 throw new ServiceException("نقشی با این کد وجود دارد");
 
-            await CoreService.Create(role, false);
 
-            if (parentID != null && parentID != 0)  // create parent relation
-            {
-                var RoleParent = new RoleParent();
-                RoleParent.Role = role;
-                RoleParent.ParentId = (long)parentID;
-
-                RoleParent.CreateDate = DateTime.Now.Ticks;
-                RoleParent.CreateUserId = AuthUtilService.GetUserId();
-
-                await CoreService.GetDb<RoleParent>()
-                    .AddAsync(RoleParent);
-            }
-
-            await CoreService.CommitAsync();
+            await CoreService.Create(role, true);
             return role;    
         }
 
